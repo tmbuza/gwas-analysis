@@ -1,0 +1,11 @@
+:::cdi-message
+ID: GWAS-L02
+Type: Lesson
+Audience: Public
+Theme: Phenotype definition, covariates, and sampling
+:::
+
+# Lesson 2: Study Design and Phenotypes
+
+Content coming soon.
+

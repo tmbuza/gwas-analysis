@@ -1,0 +1,11 @@
+:::cdi-message
+ID: GWAS-L04
+Type: Lesson
+Audience: Public
+Theme: Models, assumptions, covariate adjustment
+:::
+
+# Lesson 4: Association Testing Concepts
+
+Content coming soon.
+

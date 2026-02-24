@@ -1,0 +1,11 @@
+:::cdi-message
+ID: GWAS-L05
+Type: Lesson
+Audience: Public
+Theme: Manhattan/QQ, inflation checks, signal hygiene
+:::
+
+# Lesson 5: Visualizing and Validating Signals
+
+Content coming soon.
+

@@ -1,0 +1,20 @@
+project:
+  type: book
+  output-dir: docs
+
+book:
+  title: "GWAS Analysis"
+  chapters:
+    - index.qmd
+    - 01-preface-and-setup.qmd
+    - 02-study-design-and-phenotypes.qmd
+    - 03-genotype-qc-and-population-structure.qmd
+    - 04-association-testing-concepts.qmd
+    - 05-visualizing-and-validating-signals.qmd
+    - 06-from-association-to-biological-claims.qmd
+
+format:
+  html:
+    toc: true
+    number-sections: false
+    css: assets/css/cdi.css

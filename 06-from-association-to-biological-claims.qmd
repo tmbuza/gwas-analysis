@@ -1,0 +1,11 @@
+:::cdi-message
+ID: GWAS-L06
+Type: Lesson
+Audience: Public
+Theme: Replication, LD context, plausible biology
+:::
+
+# Lesson 6: From Association to Biological Claims
+
+Content coming soon.
+

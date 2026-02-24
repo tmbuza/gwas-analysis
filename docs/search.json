@@ -1,0 +1,72 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "GWAS Analysis",
+    "section": "",
+    "text": "Free Guide · Updated Feb 2026",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>index.html</span>"
+    ]
+  },
+  {
+    "objectID": "01-preface-and-setup.html",
+    "href": "01-preface-and-setup.html",
+    "title": "Lesson 1: Preface and Setup",
+    "section": "",
+    "text": "ID: GWAS-L01 Type: Lesson Audience: Public Theme: GWAS foundations and reproducible setup\n\nContent coming soon.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Lesson 1: Preface and Setup</span>"
+    ]
+  },
+  {
+    "objectID": "02-study-design-and-phenotypes.html",
+    "href": "02-study-design-and-phenotypes.html",
+    "title": "Lesson 2: Study Design and Phenotypes",
+    "section": "",
+    "text": "ID: GWAS-L02 Type: Lesson Audience: Public Theme: Phenotype definition, covariates, and sampling\n\nContent coming soon.",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Lesson 2: Study Design and Phenotypes</span>"
+    ]
+  },
+  {
+    "objectID": "03-genotype-qc-and-population-structure.html",
+    "href": "03-genotype-qc-and-population-structure.html",
+    "title": "Lesson 3: Genotype QC and Population Structure",
+    "section": "",
+    "text": "ID: GWAS-L03 Type: Lesson Audience: Public Theme: QC, ancestry, relatedness, stratification\n\nContent coming soon.",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Lesson 3: Genotype QC and Population Structure</span>"
+    ]
+  },
+  {
+    "objectID": "04-association-testing-concepts.html",
+    "href": "04-association-testing-concepts.html",
+    "title": "Lesson 4: Association Testing Concepts",
+    "section": "",
+    "text": "ID: GWAS-L04 Type: Lesson Audience: Public Theme: Models, assumptions, covariate adjustment\n\nContent coming soon.",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Lesson 4: Association Testing Concepts</span>"
+    ]
+  },
+  {
+    "objectID": "05-visualizing-and-validating-signals.html",
+    "href": "05-visualizing-and-validating-signals.html",
+    "title": "Lesson 5: Visualizing and Validating Signals",
+    "section": "",
+    "text": "ID: GWAS-L05 Type: Lesson Audience: Public Theme: Manhattan/QQ, inflation checks, signal hygiene\n\nContent coming soon.",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Lesson 5: Visualizing and Validating Signals</span>"
+    ]
+  },
+  {
+    "objectID": "06-from-association-to-biological-claims.html",
+    "href": "06-from-association-to-biological-claims.html",
+    "title": "Lesson 6: From Association to Biological Claims",
+    "section": "",
+    "text": "ID: GWAS-L06 Type: Lesson Audience: Public Theme: Replication, LD context, plausible biology\n\nContent coming soon.",
+    "crumbs": [
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Lesson 6: From Association to Biological Claims</span>"
+    ]
+  }
+]

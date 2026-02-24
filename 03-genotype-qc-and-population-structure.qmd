@@ -1,0 +1,11 @@
+:::cdi-message
+ID: GWAS-L03
+Type: Lesson
+Audience: Public
+Theme: QC, ancestry, relatedness, stratification
+:::
+
+# Lesson 3: Genotype QC and Population Structure
+
+Content coming soon.
+
