@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Lesson 5: Visualizing and Validating Signals – GWAS Analysis</title>
+<title>Lesson 5: Visualizing and Validating Association Signals – GWAS Analysis</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,6 +19,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -83,7 +118,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./05-visualizing-and-validating-signals.html"><span class="chapter-title">Lesson 5: Visualizing and Validating Signals</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./05-visualizing-and-validating-signals.html"><span class="chapter-title">Lesson 5: Visualizing and Validating Association Signals</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -135,7 +170,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./05-visualizing-and-validating-signals.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Lesson 5: Visualizing and Validating Signals</span></a>
+  <a href="./05-visualizing-and-validating-signals.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Lesson 5: Visualizing and Validating Association Signals</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -148,15 +183,35 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#why-visualization-matters" id="toc-why-visualization-matters" class="nav-link active" data-scroll-target="#why-visualization-matters">Why Visualization Matters</a></li>
+  <li><a href="#recompute-gwas-results" id="toc-recompute-gwas-results" class="nav-link" data-scroll-target="#recompute-gwas-results">Recompute GWAS Results</a></li>
+  <li><a href="#manhattan-style-plot-conceptual" id="toc-manhattan-style-plot-conceptual" class="nav-link" data-scroll-target="#manhattan-style-plot-conceptual">Manhattan-Style Plot (Conceptual)</a>
+  <ul class="collapse">
+  <li><a href="#interpretation" id="toc-interpretation" class="nav-link" data-scroll-target="#interpretation">Interpretation</a></li>
+  </ul></li>
+  <li><a href="#qq-plot" id="toc-qq-plot" class="nav-link" data-scroll-target="#qq-plot">QQ Plot</a>
+  <ul class="collapse">
+  <li><a href="#interpretation-1" id="toc-interpretation-1" class="nav-link" data-scroll-target="#interpretation-1">Interpretation</a></li>
+  </ul></li>
+  <li><a href="#genomic-inflation-factor-lambda" id="toc-genomic-inflation-factor-lambda" class="nav-link" data-scroll-target="#genomic-inflation-factor-lambda">Genomic Inflation Factor (Lambda)</a>
+  <ul class="collapse">
+  <li><a href="#interpretation-2" id="toc-interpretation-2" class="nav-link" data-scroll-target="#interpretation-2">Interpretation</a></li>
+  </ul></li>
+  <li><a href="#what-this-lesson-adds" id="toc-what-this-lesson-adds" class="nav-link" data-scroll-target="#what-this-lesson-adds">What This Lesson Adds</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-title">Lesson 5: Visualizing and Validating Signals</span></h1>
+<h1 class="title"><span class="chapter-title">Lesson 5: Visualizing and Validating Association Signals</span></h1>
 </div>
 
 
@@ -174,11 +229,178 @@ ul.task-list li input[type="checkbox"] {
 
 
 <div class="cdi-message">
-<p>ID: GWAS-L05 Type: Lesson Audience: Public Theme: Manhattan/QQ, inflation checks, signal hygiene</p>
+<ul>
+<li><strong>ID:</strong> GWAS-L05</li>
+<li><strong>Type:</strong> Diagnostics + Interpretation</li>
+<li><strong>Audience:</strong> Public</li>
+<li><strong>Theme:</strong> Manhattan plots, QQ plots, and inflation assessment</li>
+</ul>
 </div>
-<p>Content coming soon.</p>
+<section id="why-visualization-matters" class="level2">
+<h2 class="anchored" data-anchor-id="why-visualization-matters">Why Visualization Matters</h2>
+<p>Association testing produces a table of p-values and effect sizes.</p>
+<p>But raw tables do not reveal:</p>
+<ul>
+<li>global inflation</li>
+<li>systematic bias</li>
+<li>signal concentration</li>
+<li>whether top hits stand out from background noise</li>
+</ul>
+<p>Visualization turns a list of p-values into a structure we can interpret.</p>
+<hr>
+</section>
+<section id="recompute-gwas-results" class="level2">
+<h2 class="anchored" data-anchor-id="recompute-gwas-results">Recompute GWAS Results</h2>
+<p>We regenerate results to ensure this lesson is self-contained.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"scripts/R/cdi-plot-theme.R"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>pheno <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/demo-phenotype.csv"</span>, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>covar <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/demo-covariates.csv"</span>, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>geno  <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/demo-genotypes.csv"</span>, <span class="at">row.names =</span> <span class="dv">1</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">merge</span>(pheno, covar, <span class="at">by =</span> <span class="st">"sample_id"</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>common_ids <span class="ot">&lt;-</span> <span class="fu">intersect</span>(df<span class="sc">$</span>sample_id, <span class="fu">rownames</span>(geno))</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>df   <span class="ot">&lt;-</span> df[<span class="fu">match</span>(common_ids, df<span class="sc">$</span>sample_id), ]</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>geno <span class="ot">&lt;-</span> geno[common_ids, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>test_snp_lm <span class="ot">&lt;-</span> <span class="cf">function</span>(x, df){</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">any</span>(<span class="fu">is.na</span>(x))){</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    x[<span class="fu">is.na</span>(x)] <span class="ot">&lt;-</span> <span class="fu">mean</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(trait <span class="sc">~</span> x <span class="sc">+</span> age <span class="sc">+</span> sex <span class="sc">+</span> PC1 <span class="sc">+</span> PC2, <span class="at">data =</span> df)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  co <span class="ot">&lt;-</span> <span class="fu">summary</span>(fit)<span class="sc">$</span>coefficients</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">beta =</span> <span class="fu">unname</span>(co[<span class="st">"x"</span>, <span class="st">"Estimate"</span>]),</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">se   =</span> <span class="fu">unname</span>(co[<span class="st">"x"</span>, <span class="st">"Std. Error"</span>]),</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">p    =</span> <span class="fu">unname</span>(co[<span class="st">"x"</span>, <span class="st">"Pr(&gt;|t|)"</span>])</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">t</span>(<span class="fu">apply</span>(geno, <span class="dv">2</span>, test_snp_lm, <span class="at">df =</span> df))</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(res)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>snp <span class="ot">&lt;-</span> <span class="fu">rownames</span>(res)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>logp <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fu">log10</span>(res<span class="sc">$</span>p)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<hr>
+</section>
+<section id="manhattan-style-plot-conceptual" class="level2">
+<h2 class="anchored" data-anchor-id="manhattan-style-plot-conceptual">Manhattan-Style Plot (Conceptual)</h2>
+<p>In real GWAS, SNPs are ordered by chromosome and position.</p>
+<p>In this demo, we plot SNP index vs –log10(p).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>index <span class="ot">&lt;-</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(res))</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>pal <span class="ot">&lt;-</span> <span class="fu">cdi_palette</span>()</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(res, <span class="fu">aes</span>(<span class="at">x =</span> index, <span class="at">y =</span> logp)) <span class="sc">+</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> pal<span class="sc">$</span>teal, <span class="at">alpha =</span> <span class="fl">0.75</span>, <span class="at">size =</span> <span class="fl">1.6</span>) <span class="sc">+</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="sc">-</span><span class="fu">log10</span>(<span class="fl">0.05</span>), <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> pal<span class="sc">$</span>highlight) <span class="sc">+</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Manhattan-style overview"</span>,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"SNP index vs -log10(p)"</span>,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"SNP index"</span>,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"-log10(p-value)"</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cdi_theme</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="05-visualizing-and-validating-signals_files/figure-html/manhattan-plot-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="interpretation" class="level3">
+<h3 class="anchored" data-anchor-id="interpretation">Interpretation</h3>
+<p>Points rising above the dashed line represent nominally significant variants.</p>
+<p>However:</p>
+<ul>
+<li>Nominal significance is not genome-wide significance.</li>
+<li>Isolated peaks are more convincing than diffuse elevation.</li>
+<li>Widespread elevation suggests inflation or confounding.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="qq-plot" class="level2">
+<h2 class="anchored" data-anchor-id="qq-plot">QQ Plot</h2>
+<p>A QQ plot compares observed p-values to those expected under the null.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>observed <span class="ot">&lt;-</span> <span class="fu">sort</span>(res<span class="sc">$</span>p)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>expected <span class="ot">&lt;-</span> <span class="fu">ppoints</span>(<span class="fu">length</span>(observed))</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>qq_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">expected =</span> <span class="sc">-</span><span class="fu">log10</span>(expected),</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">observed =</span> <span class="sc">-</span><span class="fu">log10</span>(observed)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>pal <span class="ot">&lt;-</span> <span class="fu">cdi_palette</span>()</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(qq_df, <span class="fu">aes</span>(<span class="at">x =</span> expected, <span class="at">y =</span> observed)) <span class="sc">+</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> pal<span class="sc">$</span>teal, <span class="at">alpha =</span> <span class="fl">0.7</span>, <span class="at">size =</span> <span class="fl">1.6</span>) <span class="sc">+</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">slope =</span> <span class="dv">1</span>, <span class="at">color =</span> pal<span class="sc">$</span>highlight, <span class="at">linewidth =</span> <span class="fl">0.9</span>) <span class="sc">+</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"QQ plot of GWAS p-values"</span>,</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Observed vs expected under null"</span>,</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Expected -log10(p)"</span>,</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Observed -log10(p)"</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cdi_theme</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="05-visualizing-and-validating-signals_files/figure-html/qq-plot-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="interpretation-1" class="level3">
+<h3 class="anchored" data-anchor-id="interpretation-1">Interpretation</h3>
+<p>If points closely follow the diagonal, the test statistics are well calibrated.</p>
+<p>Upward deviation at the tail suggests real signals.</p>
+<p>Systematic upward deviation across the range suggests inflation.</p>
+<hr>
+</section>
+</section>
+<section id="genomic-inflation-factor-lambda" class="level2">
+<h2 class="anchored" data-anchor-id="genomic-inflation-factor-lambda">Genomic Inflation Factor (Lambda)</h2>
+<p>We quantify inflation using lambda.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>chisq <span class="ot">&lt;-</span> <span class="fu">qchisq</span>(<span class="dv">1</span> <span class="sc">-</span> res<span class="sc">$</span>p, <span class="at">df =</span> <span class="dv">1</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>lambda <span class="ot">&lt;-</span> <span class="fu">median</span>(chisq, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">/</span> <span class="fu">qchisq</span>(<span class="fl">0.5</span>, <span class="at">df =</span> <span class="dv">1</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>lambda</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.9738986</code></pre>
+</div>
+</div>
+<section id="interpretation-2" class="level3">
+<h3 class="anchored" data-anchor-id="interpretation-2">Interpretation</h3>
+<ul>
+<li>Lambda ≈ 1 indicates well-calibrated statistics.</li>
+<li>Lambda &gt; 1 suggests inflation (structure, confounding, or model misspecification).</li>
+<li>Lambda &lt; 1 suggests overcorrection or conservative testing.</li>
+</ul>
+<p>Lambda is a diagnostic, not a verdict.</p>
+<hr>
+</section>
+</section>
+<section id="what-this-lesson-adds" class="level2">
+<h2 class="anchored" data-anchor-id="what-this-lesson-adds">What This Lesson Adds</h2>
+<p>Association tables become interpretable when visualized.</p>
+<p>We now have tools to detect:</p>
+<ul>
+<li>global inflation</li>
+<li>structured bias</li>
+<li>isolated strong signals</li>
+<li>tail behavior</li>
+</ul>
+<p>Only after these diagnostics can we responsibly interpret top hits.</p>
+<p>Lesson 6 moves from statistical signal to biological calibration.</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

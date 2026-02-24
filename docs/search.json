@@ -274,7 +274,117 @@
     "href": "04-association-testing-concepts.html",
     "title": "Lesson 4: Association Testing Concepts",
     "section": "",
-    "text": "ID: GWAS-L04 Type: Lesson Audience: Public Theme: Models, assumptions, covariate adjustment\n\nContent coming soon.",
+    "text": "What Association Testing Actually Does\nIn GWAS, we test whether a genetic variant is associated with a trait.\nFor a quantitative trait, the simplest model is a linear regression:\nTrait ~ SNP + Covariates\nThe SNP is usually coded as 0, 1, 2, representing allele dosage.\nThe output provides:\nA small p-value indicates evidence of association, not proof of causality.",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Lesson 4: Association Testing Concepts</span>"
+    ]
+  },
+  {
+    "objectID": "04-association-testing-concepts.html#what-association-testing-actually-does",
+    "href": "04-association-testing-concepts.html#what-association-testing-actually-does",
+    "title": "Lesson 4: Association Testing Concepts",
+    "section": "",
+    "text": "an effect size (beta)\na standard error\na p-value",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Lesson 4: Association Testing Concepts</span>"
+    ]
+  },
+  {
+    "objectID": "04-association-testing-concepts.html#load-analysis-inputs",
+    "href": "04-association-testing-concepts.html#load-analysis-inputs",
+    "title": "Lesson 4: Association Testing Concepts",
+    "section": "Load Analysis Inputs",
+    "text": "Load Analysis Inputs\nIn this lesson, we combine:\n\nphenotype and covariates (from Lesson 2)\na genotype matrix (from the demo data)\n\n\nsource(\"scripts/R/cdi-plot-theme.R\")\nlibrary(ggplot2)\n\npheno &lt;- read.csv(\"data/demo-phenotype.csv\", stringsAsFactors = FALSE)\ncovar &lt;- read.csv(\"data/demo-covariates.csv\", stringsAsFactors = FALSE)\n\ndf &lt;- merge(pheno, covar, by = \"sample_id\")\n\ngeno &lt;- read.csv(\"data/demo-genotypes.csv\", row.names = 1)\n\ndim(df)\n\n[1] 200   6\n\ndim(geno)\n\n[1]  200 2000",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Lesson 4: Association Testing Concepts</span>"
+    ]
+  },
+  {
+    "objectID": "04-association-testing-concepts.html#inspect-the-analysis-table",
+    "href": "04-association-testing-concepts.html#inspect-the-analysis-table",
+    "title": "Lesson 4: Association Testing Concepts",
+    "section": "Inspect the Analysis Table",
+    "text": "Inspect the Analysis Table\nBefore fitting any models, confirm the analysis table contains what you think it contains.\n\nstr(df)\n\n'data.frame':   200 obs. of  6 variables:\n $ sample_id: chr  \"sample-001\" \"sample-002\" \"sample-003\" \"sample-004\" ...\n $ trait    : num  1.48 2.49 1.68 1.96 2.23 ...\n $ age      : int  38 42 64 46 47 66 51 30 37 40 ...\n $ sex      : chr  \"F\" \"F\" \"F\" \"F\" ...\n $ PC1      : num  -0.715 -0.753 -0.939 -1.053 -0.437 ...\n $ PC2      : num  -0.9107 -1.2466 0.2583 -0.0307 -1.4696 ...\n\nhead(df)\n\n   sample_id    trait age sex        PC1         PC2\n1 sample-001 1.484454  38   F -0.7152422 -0.91065959\n2 sample-002 2.485771  42   F -0.7526890 -1.24657225\n3 sample-003 1.676582  64   F -0.9385387  0.25830482\n4 sample-004 1.963092  46   F -1.0525133 -0.03065893\n5 sample-005 2.226643  47   F -0.4371595 -1.46962895\n6 sample-006 2.206656  66   F  0.3311792  0.12258954\n\nsummary(df$trait)\n\n   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. \n-0.3067  1.3695  2.0493  2.1273  2.8598  5.3643 \n\n\nYou should see the core fields used throughout this guide:\n\nsample_id\ntrait\nage\nsex\nPC1\nPC2\n\nIf these are missing or mis-typed, association testing may still run, but interpretation becomes unreliable.",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Lesson 4: Association Testing Concepts</span>"
+    ]
+  },
+  {
+    "objectID": "04-association-testing-concepts.html#align-samples",
+    "href": "04-association-testing-concepts.html#align-samples",
+    "title": "Lesson 4: Association Testing Concepts",
+    "section": "Align Samples",
+    "text": "Align Samples\nGenotype data uses row names as sample IDs. We must ensure phenotype rows match genotype rows.\n\ncommon_ids &lt;- intersect(df$sample_id, rownames(geno))\n\ndf &lt;- df[df$sample_id %in% common_ids, ]\ngeno &lt;- geno[common_ids, , drop = FALSE]\n\n# Match order exactly\ndf &lt;- df[match(common_ids, df$sample_id), ]\n\nstopifnot(all(df$sample_id == rownames(geno)))\n\ndim(df)\n\n[1] 200   6\n\ndim(geno)\n\n[1]  200 2000",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Lesson 4: Association Testing Concepts</span>"
+    ]
+  },
+  {
+    "objectID": "04-association-testing-concepts.html#minimal-adjustment-model",
+    "href": "04-association-testing-concepts.html#minimal-adjustment-model",
+    "title": "Lesson 4: Association Testing Concepts",
+    "section": "Minimal Adjustment Model",
+    "text": "Minimal Adjustment Model\nIn Lesson 2, we motivated adjustment for age, sex, and principal components.\nIn this demo, we use:\nTrait ~ age + sex + PC1 + PC2\nAssociation testing adds one SNP at a time to this baseline model.",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Lesson 4: Association Testing Concepts</span>"
+    ]
+  },
+  {
+    "objectID": "04-association-testing-concepts.html#example-one-snp-test",
+    "href": "04-association-testing-concepts.html#example-one-snp-test",
+    "title": "Lesson 4: Association Testing Concepts",
+    "section": "Example: One SNP Test",
+    "text": "Example: One SNP Test\nTo make the process concrete, test a single SNP and interpret the output.\n\nsnp_name &lt;- colnames(geno)[1]\nx &lt;- geno[, snp_name]\n\n# Mean impute for this SNP (simple demo approach)\nif (any(is.na(x))){\n  x[is.na(x)] &lt;- mean(x, na.rm = TRUE)\n}\n\nfit &lt;- lm(trait ~ x + age + sex + PC1 + PC2, data = df)\nsummary(fit)$coefficients[\"x\", ]\n\n  Estimate Std. Error    t value   Pr(&gt;|t|) \n0.29666525 0.15447184 1.92051353 0.05625948 \n\n\n\nInterpretation\n\nThe coefficient for x is the estimated trait change per allele.\nThe p-value tests whether that coefficient differs from zero.\n\nThis is an association test. It is not yet a biological claim.",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Lesson 4: Association Testing Concepts</span>"
+    ]
+  },
+  {
+    "objectID": "04-association-testing-concepts.html#scaling-up-per-snp-regression",
+    "href": "04-association-testing-concepts.html#scaling-up-per-snp-regression",
+    "title": "Lesson 4: Association Testing Concepts",
+    "section": "Scaling Up: Per-SNP Regression",
+    "text": "Scaling Up: Per-SNP Regression\nGWAS repeats the same model across many SNPs.\nWe will create a small function that returns:\n\nbeta\nstandard error\np-value\n\n\ntest_snp_lm &lt;- function(x, df){\n  if (any(is.na(x))){\n    x[is.na(x)] &lt;- mean(x, na.rm = TRUE)\n  }\n\n  fit &lt;- lm(trait ~ x + age + sex + PC1 + PC2, data = df)\n  co &lt;- summary(fit)$coefficients\n\n  c(\n    beta = unname(co[\"x\", \"Estimate\"]),\n    se = unname(co[\"x\", \"Std. Error\"]),\n    p = unname(co[\"x\", \"Pr(&gt;|t|)\"])\n  )\n}\n\nNow apply it across all SNPs.\n\nres &lt;- t(apply(geno, 2, test_snp_lm, df = df))\nres &lt;- as.data.frame(res)\nres$snp &lt;- rownames(res)\n\nres &lt;- res[, c(\"snp\", \"beta\", \"se\", \"p\")]\nhead(res)\n\n    snp        beta        se          p\nrs1 rs1  0.29666525 0.1544718 0.05625948\nrs2 rs2 -0.16324751 0.1546238 0.29238528\nrs3 rs3  0.12014575 0.2072047 0.56269466\nrs4 rs4  0.11951910 0.1291166 0.35576846\nrs5 rs5 -0.09684449 0.1517165 0.52401469\nrs6 rs6  0.05570001 0.1119807 0.61946512",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Lesson 4: Association Testing Concepts</span>"
+    ]
+  },
+  {
+    "objectID": "04-association-testing-concepts.html#multiple-testing",
+    "href": "04-association-testing-concepts.html#multiple-testing",
+    "title": "Lesson 4: Association Testing Concepts",
+    "section": "Multiple Testing",
+    "text": "Multiple Testing\nA GWAS typically tests hundreds of thousands to millions of SNPs.\nWith so many tests:\n\nsome p-values will be small by chance\nnaive thresholds (like 0.05) are not meaningful\n\nThis is why GWAS uses stringent thresholds (often around 5e-8 in real studies).\nIn this demo, we focus on concepts rather than strict genome-wide significance.",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Lesson 4: Association Testing Concepts</span>"
+    ]
+  },
+  {
+    "objectID": "04-association-testing-concepts.html#effect-size-vs-significance",
+    "href": "04-association-testing-concepts.html#effect-size-vs-significance",
+    "title": "Lesson 4: Association Testing Concepts",
+    "section": "Effect Size vs Significance",
+    "text": "Effect Size vs Significance\nA small p-value can occur with:\n\na large effect size\na small standard error\na large sample size\n\nA large effect size can be non-significant if sample size is small or variance is large.\nEffect size answers:\nHow strong is the association?\nP-value answers:\nHow surprising is the association under the null?\nBoth must be interpreted together.",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Lesson 4: Association Testing Concepts</span>"
+    ]
+  },
+  {
+    "objectID": "04-association-testing-concepts.html#quick-diagnostic-top-hits",
+    "href": "04-association-testing-concepts.html#quick-diagnostic-top-hits",
+    "title": "Lesson 4: Association Testing Concepts",
+    "section": "Quick Diagnostic: Top Hits",
+    "text": "Quick Diagnostic: Top Hits\n\nres &lt;- res[order(res$p), ]\nhead(res, 10)\n\n          snp       beta        se            p\nrs153   rs153  0.6862770 0.1030083 2.714428e-10\nrs754   rs754 -0.7736402 0.1873225 5.388030e-05\nrs229   rs229 -0.4507871 0.1184809 1.901932e-04\nrs424   rs424  0.3982625 0.1161028 7.366738e-04\nrs593   rs593  0.3478399 0.1066971 1.315523e-03\nrs1925 rs1925 -0.3657837 0.1129199 1.409698e-03\nrs1529 rs1529  0.3740211 0.1158913 1.466877e-03\nrs900   rs900  0.3483107 0.1094973 1.709060e-03\nrs1063 rs1063  0.3584473 0.1127226 1.715172e-03\nrs156   rs156  0.4618530 0.1510465 2.545306e-03\n\n\nAt this stage, a top hit is not yet a biological claim. It is a candidate signal that needs validation and calibration.",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Lesson 4: Association Testing Concepts</span>"
+    ]
+  },
+  {
+    "objectID": "04-association-testing-concepts.html#what-this-lesson-adds-to-the-reasoning-chain",
+    "href": "04-association-testing-concepts.html#what-this-lesson-adds-to-the-reasoning-chain",
+    "title": "Lesson 4: Association Testing Concepts",
+    "section": "What This Lesson Adds to the Reasoning Chain",
+    "text": "What This Lesson Adds to the Reasoning Chain\nAssociation testing provides statistical evidence. It does not provide mechanism.\nBefore interpreting a hit, we still need to ask:\n\nIs the signal robust to covariate adjustment?\nIs it driven by structure or outliers?\nIs the effect size plausible?\nIs it likely replicated, or just a chance finding?\n\nThose checks start in Lesson 5 with visualization and diagnostics.",
     "crumbs": [
       "<span class='chapter-number'>5</span>  <span class='chapter-title'>Lesson 4: Association Testing Concepts</span>"
     ]
@@ -282,11 +392,71 @@
   {
     "objectID": "05-visualizing-and-validating-signals.html",
     "href": "05-visualizing-and-validating-signals.html",
-    "title": "Lesson 5: Visualizing and Validating Signals",
+    "title": "Lesson 5: Visualizing and Validating Association Signals",
     "section": "",
-    "text": "ID: GWAS-L05 Type: Lesson Audience: Public Theme: Manhattan/QQ, inflation checks, signal hygiene\n\nContent coming soon.",
+    "text": "Why Visualization Matters\nAssociation testing produces a table of p-values and effect sizes.\nBut raw tables do not reveal:\nVisualization turns a list of p-values into a structure we can interpret.",
     "crumbs": [
-      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Lesson 5: Visualizing and Validating Signals</span>"
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Lesson 5: Visualizing and Validating Association Signals</span>"
+    ]
+  },
+  {
+    "objectID": "05-visualizing-and-validating-signals.html#why-visualization-matters",
+    "href": "05-visualizing-and-validating-signals.html#why-visualization-matters",
+    "title": "Lesson 5: Visualizing and Validating Association Signals",
+    "section": "",
+    "text": "global inflation\nsystematic bias\nsignal concentration\nwhether top hits stand out from background noise",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Lesson 5: Visualizing and Validating Association Signals</span>"
+    ]
+  },
+  {
+    "objectID": "05-visualizing-and-validating-signals.html#recompute-gwas-results",
+    "href": "05-visualizing-and-validating-signals.html#recompute-gwas-results",
+    "title": "Lesson 5: Visualizing and Validating Association Signals",
+    "section": "Recompute GWAS Results",
+    "text": "Recompute GWAS Results\nWe regenerate results to ensure this lesson is self-contained.\n\nsource(\"scripts/R/cdi-plot-theme.R\")\nlibrary(ggplot2)\n\npheno &lt;- read.csv(\"data/demo-phenotype.csv\", stringsAsFactors = FALSE)\ncovar &lt;- read.csv(\"data/demo-covariates.csv\", stringsAsFactors = FALSE)\ngeno  &lt;- read.csv(\"data/demo-genotypes.csv\", row.names = 1)\n\ndf &lt;- merge(pheno, covar, by = \"sample_id\")\n\ncommon_ids &lt;- intersect(df$sample_id, rownames(geno))\ndf   &lt;- df[match(common_ids, df$sample_id), ]\ngeno &lt;- geno[common_ids, , drop = FALSE]\n\ntest_snp_lm &lt;- function(x, df){\n  if (any(is.na(x))){\n    x[is.na(x)] &lt;- mean(x, na.rm = TRUE)\n  }\n  fit &lt;- lm(trait ~ x + age + sex + PC1 + PC2, data = df)\n  co &lt;- summary(fit)$coefficients\n  c(\n    beta = unname(co[\"x\", \"Estimate\"]),\n    se   = unname(co[\"x\", \"Std. Error\"]),\n    p    = unname(co[\"x\", \"Pr(&gt;|t|)\"])\n  )\n}\n\nres &lt;- t(apply(geno, 2, test_snp_lm, df = df))\nres &lt;- as.data.frame(res)\nres$snp &lt;- rownames(res)\nres$logp &lt;- -log10(res$p)",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Lesson 5: Visualizing and Validating Association Signals</span>"
+    ]
+  },
+  {
+    "objectID": "05-visualizing-and-validating-signals.html#manhattan-style-plot-conceptual",
+    "href": "05-visualizing-and-validating-signals.html#manhattan-style-plot-conceptual",
+    "title": "Lesson 5: Visualizing and Validating Association Signals",
+    "section": "Manhattan-Style Plot (Conceptual)",
+    "text": "Manhattan-Style Plot (Conceptual)\nIn real GWAS, SNPs are ordered by chromosome and position.\nIn this demo, we plot SNP index vs –log10(p).\n\nres$index &lt;- seq_len(nrow(res))\npal &lt;- cdi_palette()\n\nggplot(res, aes(x = index, y = logp)) +\n  geom_point(color = pal$teal, alpha = 0.75, size = 1.6) +\n  geom_hline(yintercept = -log10(0.05), linetype = \"dashed\", color = pal$highlight) +\n  labs(\n    title = \"Manhattan-style overview\",\n    subtitle = \"SNP index vs -log10(p)\",\n    x = \"SNP index\",\n    y = \"-log10(p-value)\"\n  ) +\n  cdi_theme()\n\n\n\n\n\n\n\n\n\nInterpretation\nPoints rising above the dashed line represent nominally significant variants.\nHowever:\n\nNominal significance is not genome-wide significance.\nIsolated peaks are more convincing than diffuse elevation.\nWidespread elevation suggests inflation or confounding.",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Lesson 5: Visualizing and Validating Association Signals</span>"
+    ]
+  },
+  {
+    "objectID": "05-visualizing-and-validating-signals.html#qq-plot",
+    "href": "05-visualizing-and-validating-signals.html#qq-plot",
+    "title": "Lesson 5: Visualizing and Validating Association Signals",
+    "section": "QQ Plot",
+    "text": "QQ Plot\nA QQ plot compares observed p-values to those expected under the null.\n\nobserved &lt;- sort(res$p)\nexpected &lt;- ppoints(length(observed))\n\nqq_df &lt;- data.frame(\n  expected = -log10(expected),\n  observed = -log10(observed)\n)\n\npal &lt;- cdi_palette()\n\nggplot(qq_df, aes(x = expected, y = observed)) +\n  geom_point(color = pal$teal, alpha = 0.7, size = 1.6) +\n  geom_abline(intercept = 0, slope = 1, color = pal$highlight, linewidth = 0.9) +\n  labs(\n    title = \"QQ plot of GWAS p-values\",\n    subtitle = \"Observed vs expected under null\",\n    x = \"Expected -log10(p)\",\n    y = \"Observed -log10(p)\"\n  ) +\n  cdi_theme()\n\n\n\n\n\n\n\n\n\nInterpretation\nIf points closely follow the diagonal, the test statistics are well calibrated.\nUpward deviation at the tail suggests real signals.\nSystematic upward deviation across the range suggests inflation.",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Lesson 5: Visualizing and Validating Association Signals</span>"
+    ]
+  },
+  {
+    "objectID": "05-visualizing-and-validating-signals.html#genomic-inflation-factor-lambda",
+    "href": "05-visualizing-and-validating-signals.html#genomic-inflation-factor-lambda",
+    "title": "Lesson 5: Visualizing and Validating Association Signals",
+    "section": "Genomic Inflation Factor (Lambda)",
+    "text": "Genomic Inflation Factor (Lambda)\nWe quantify inflation using lambda.\n\nchisq &lt;- qchisq(1 - res$p, df = 1)\nlambda &lt;- median(chisq, na.rm = TRUE) / qchisq(0.5, df = 1)\nlambda\n\n[1] 0.9738986\n\n\n\nInterpretation\n\nLambda ≈ 1 indicates well-calibrated statistics.\nLambda &gt; 1 suggests inflation (structure, confounding, or model misspecification).\nLambda &lt; 1 suggests overcorrection or conservative testing.\n\nLambda is a diagnostic, not a verdict.",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Lesson 5: Visualizing and Validating Association Signals</span>"
+    ]
+  },
+  {
+    "objectID": "05-visualizing-and-validating-signals.html#what-this-lesson-adds",
+    "href": "05-visualizing-and-validating-signals.html#what-this-lesson-adds",
+    "title": "Lesson 5: Visualizing and Validating Association Signals",
+    "section": "What This Lesson Adds",
+    "text": "What This Lesson Adds\nAssociation tables become interpretable when visualized.\nWe now have tools to detect:\n\nglobal inflation\nstructured bias\nisolated strong signals\ntail behavior\n\nOnly after these diagnostics can we responsibly interpret top hits.\nLesson 6 moves from statistical signal to biological calibration.",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Lesson 5: Visualizing and Validating Association Signals</span>"
     ]
   },
   {
@@ -294,7 +464,67 @@
     "href": "06-from-association-to-biological-claims.html",
     "title": "Lesson 6: From Association to Biological Claims",
     "section": "",
-    "text": "ID: GWAS-L06 Type: Lesson Audience: Public Theme: Replication, LD context, plausible biology\n\nContent coming soon.",
+    "text": "Why This Lesson Exists\nA statistically significant association is not automatically a biological discovery.\nGWAS identifies statistical relationships between genotype and phenotype. It does not automatically establish causality, mechanism, or clinical relevance.\nThis lesson focuses on disciplined interpretation.",
+    "crumbs": [
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Lesson 6: From Association to Biological Claims</span>"
+    ]
+  },
+  {
+    "objectID": "06-from-association-to-biological-claims.html#recompute-results-self-contained",
+    "href": "06-from-association-to-biological-claims.html#recompute-results-self-contained",
+    "title": "Lesson 6: From Association to Biological Claims",
+    "section": "Recompute Results (Self-Contained)",
+    "text": "Recompute Results (Self-Contained)\n\nsource(\"scripts/R/cdi-plot-theme.R\")\nlibrary(ggplot2)\n\npheno &lt;- read.csv(\"data/demo-phenotype.csv\", stringsAsFactors = FALSE)\ncovar &lt;- read.csv(\"data/demo-covariates.csv\", stringsAsFactors = FALSE)\ngeno  &lt;- read.csv(\"data/demo-genotypes.csv\", row.names = 1)\n\ndf &lt;- merge(pheno, covar, by = \"sample_id\")\n\ncommon_ids &lt;- intersect(df$sample_id, rownames(geno))\ndf   &lt;- df[match(common_ids, df$sample_id), ]\ngeno &lt;- geno[common_ids, , drop = FALSE]\n\ntest_snp_lm &lt;- function(x, df){\n  if (any(is.na(x))){\n    x[is.na(x)] &lt;- mean(x, na.rm = TRUE)\n  }\n  fit &lt;- lm(trait ~ x + age + sex + PC1 + PC2, data = df)\n  co &lt;- summary(fit)$coefficients\n  c(\n    beta = unname(co[\"x\", \"Estimate\"]),\n    se   = unname(co[\"x\", \"Std. Error\"]),\n    p    = unname(co[\"x\", \"Pr(&gt;|t|)\"])\n  )\n}\n\nres &lt;- t(apply(geno, 2, test_snp_lm, df = df))\nres &lt;- as.data.frame(res)\nres$snp &lt;- rownames(res)\nres$logp &lt;- -log10(res$p)\n\nalpha_nominal &lt;- 0.05\nres$is_sig &lt;- res$p &lt; alpha_nominal\n\nres &lt;- res[order(res$p), ]\nhead(res, 5)\n\n            beta        se            p   snp     logp is_sig\nrs153  0.6862770 0.1030083 2.714428e-10 rs153 9.566322   TRUE\nrs754 -0.7736402 0.1873225 5.388030e-05 rs754 4.268570   TRUE\nrs229 -0.4507871 0.1184809 1.901932e-04 rs229 3.720805   TRUE\nrs424  0.3982625 0.1161028 7.366738e-04 rs424 3.132725   TRUE\nrs593  0.3478399 0.1066971 1.315523e-03 rs593 2.880901   TRUE",
+    "crumbs": [
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Lesson 6: From Association to Biological Claims</span>"
+    ]
+  },
+  {
+    "objectID": "06-from-association-to-biological-claims.html#effect-size-distribution",
+    "href": "06-from-association-to-biological-claims.html#effect-size-distribution",
+    "title": "Lesson 6: From Association to Biological Claims",
+    "section": "Effect Size Distribution",
+    "text": "Effect Size Distribution\n\nggplot(res, aes(x = beta)) +\n  cdi_geom_histogram(bins = 40, colored = TRUE) +\n  cdi_scale_histogram_fill() +\n  labs(\n    title = \"Effect size distribution across SNPs\",\n    subtitle = \"Most SNP effects should be near zero in complex traits\",\n    x = \"Estimated beta (trait change per allele)\",\n    y = \"Number of SNPs\"\n  ) +\n  cdi_theme()\n\n\n\n\n\n\n\n\n\nInterpretation\nIn complex traits, most variants have small effects. A symmetric distribution centered near zero is expected under polygenicity. Large-magnitude effects should be treated with caution and verified carefully.",
+    "crumbs": [
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Lesson 6: From Association to Biological Claims</span>"
+    ]
+  },
+  {
+    "objectID": "06-from-association-to-biological-claims.html#volcano-style-calibration-plot",
+    "href": "06-from-association-to-biological-claims.html#volcano-style-calibration-plot",
+    "title": "Lesson 6: From Association to Biological Claims",
+    "section": "Volcano-Style Calibration Plot",
+    "text": "Volcano-Style Calibration Plot\n\npal &lt;- cdi_palette()\n\nplot_df &lt;- res\nplot_df$sig_label &lt;- ifelse(plot_df$is_sig,\n                            \"Nominally significant\",\n                            \"Not significant\")\n\nggplot(plot_df, aes(x = beta, y = logp)) +\n  geom_point(aes(color = sig_label),\n             alpha = 0.8,\n             size = 1.8) +\n  geom_vline(xintercept = 0,\n             linewidth = 0.6,\n             color = pal$muted) +\n  geom_hline(yintercept = -log10(alpha_nominal),\n             linetype = \"dashed\",\n             linewidth = 0.6,\n             color = pal$highlight) +\n  scale_color_manual(values = c(\n    \"Not significant\" = pal$teal_light,\n    \"Nominally significant\" = pal$highlight\n  )) +\n  labs(\n    title = \"Effect size vs statistical evidence\",\n    subtitle = \"Vertical line: no effect. Horizontal line: nominal threshold.\",\n    x = \"Estimated beta\",\n    y = \"-log10(p-value)\",\n    color = \"\"\n  ) +\n  cdi_theme()\n\n\n\n\n\n\n\n\n\nInterpretation\nThe characteristic “V” shape is typical in GWAS.\n\nPoints near beta = 0 show little evidence.\nStronger effects with stable estimates rise above the threshold.\nLarge betas with weak evidence often indicate instability or sparse genotype counts.\n\nSignificant points are candidates — not conclusions.",
+    "crumbs": [
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Lesson 6: From Association to Biological Claims</span>"
+    ]
+  },
+  {
+    "objectID": "06-from-association-to-biological-claims.html#sensitivity-to-population-structure",
+    "href": "06-from-association-to-biological-claims.html#sensitivity-to-population-structure",
+    "title": "Lesson 6: From Association to Biological Claims",
+    "section": "Sensitivity to Population Structure",
+    "text": "Sensitivity to Population Structure\n\ntop_snp &lt;- res$snp[1]\nx &lt;- geno[, top_snp]\n\nif (any(is.na(x))){\n  x[is.na(x)] &lt;- mean(x, na.rm = TRUE)\n}\n\nfit_adjusted   &lt;- lm(trait ~ x + age + sex + PC1 + PC2, data = df)\nfit_unadjusted &lt;- lm(trait ~ x + age + sex, data = df)\n\nadj   &lt;- coef(summary(fit_adjusted))[\"x\", ]\nunadj &lt;- coef(summary(fit_unadjusted))[\"x\", ]\n\nadj\n\n    Estimate   Std. Error      t value     Pr(&gt;|t|) \n6.862770e-01 1.030083e-01 6.662345e+00 2.714428e-10 \n\nunadj\n\n    Estimate   Std. Error      t value     Pr(&gt;|t|) \n6.539695e-01 1.056920e-01 6.187505e+00 3.500449e-09 \n\n\n\nInterpretation\nIf adjustment causes large shifts in effect magnitude or direction, the association may reflect ancestry structure rather than locus-specific biology.\nRobust signals remain directionally consistent after adjustment.",
+    "crumbs": [
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Lesson 6: From Association to Biological Claims</span>"
+    ]
+  },
+  {
+    "objectID": "06-from-association-to-biological-claims.html#interpretation-hierarchy",
+    "href": "06-from-association-to-biological-claims.html#interpretation-hierarchy",
+    "title": "Lesson 6: From Association to Biological Claims",
+    "section": "Interpretation Hierarchy",
+    "text": "Interpretation Hierarchy\nResponsible GWAS interpretation follows layers:\n\nStatistical evidence\n\nCalibration and inflation diagnostics\n\nRobustness to covariate adjustment\n\nReplication\n\nBiological plausibility\n\nFunctional validation\n\nSkipping layers increases the risk of overstatement.",
+    "crumbs": [
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Lesson 6: From Association to Biological Claims</span>"
+    ]
+  },
+  {
+    "objectID": "06-from-association-to-biological-claims.html#what-this-free-track-achieved",
+    "href": "06-from-association-to-biological-claims.html#what-this-free-track-achieved",
+    "title": "Lesson 6: From Association to Biological Claims",
+    "section": "What This Free Track Achieved",
+    "text": "What This Free Track Achieved\nYou now understand:\n\nStudy design logic\n\nPhenotype calibration\n\nGenotype QC\n\nPopulation structure control\n\nPer-SNP modeling\n\nDiagnostic calibration\n\nInterpretation discipline\n\nThe goal was not to produce hits.\nThe goal was to produce defensible reasoning.",
     "crumbs": [
       "<span class='chapter-number'>7</span>  <span class='chapter-title'>Lesson 6: From Association to Biological Claims</span>"
     ]

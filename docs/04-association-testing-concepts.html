@@ -20,6 +20,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -135,7 +170,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./05-visualizing-and-validating-signals.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Lesson 5: Visualizing and Validating Signals</span></a>
+  <a href="./05-visualizing-and-validating-signals.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Lesson 5: Visualizing and Validating Association Signals</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -148,8 +183,27 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#what-association-testing-actually-does" id="toc-what-association-testing-actually-does" class="nav-link active" data-scroll-target="#what-association-testing-actually-does">What Association Testing Actually Does</a></li>
+  <li><a href="#load-analysis-inputs" id="toc-load-analysis-inputs" class="nav-link" data-scroll-target="#load-analysis-inputs">Load Analysis Inputs</a></li>
+  <li><a href="#inspect-the-analysis-table" id="toc-inspect-the-analysis-table" class="nav-link" data-scroll-target="#inspect-the-analysis-table">Inspect the Analysis Table</a></li>
+  <li><a href="#align-samples" id="toc-align-samples" class="nav-link" data-scroll-target="#align-samples">Align Samples</a></li>
+  <li><a href="#minimal-adjustment-model" id="toc-minimal-adjustment-model" class="nav-link" data-scroll-target="#minimal-adjustment-model">Minimal Adjustment Model</a></li>
+  <li><a href="#example-one-snp-test" id="toc-example-one-snp-test" class="nav-link" data-scroll-target="#example-one-snp-test">Example: One SNP Test</a>
+  <ul class="collapse">
+  <li><a href="#interpretation" id="toc-interpretation" class="nav-link" data-scroll-target="#interpretation">Interpretation</a></li>
+  </ul></li>
+  <li><a href="#scaling-up-per-snp-regression" id="toc-scaling-up-per-snp-regression" class="nav-link" data-scroll-target="#scaling-up-per-snp-regression">Scaling Up: Per-SNP Regression</a></li>
+  <li><a href="#multiple-testing" id="toc-multiple-testing" class="nav-link" data-scroll-target="#multiple-testing">Multiple Testing</a></li>
+  <li><a href="#effect-size-vs-significance" id="toc-effect-size-vs-significance" class="nav-link" data-scroll-target="#effect-size-vs-significance">Effect Size vs Significance</a></li>
+  <li><a href="#quick-diagnostic-top-hits" id="toc-quick-diagnostic-top-hits" class="nav-link" data-scroll-target="#quick-diagnostic-top-hits">Quick Diagnostic: Top Hits</a></li>
+  <li><a href="#what-this-lesson-adds-to-the-reasoning-chain" id="toc-what-this-lesson-adds-to-the-reasoning-chain" class="nav-link" data-scroll-target="#what-this-lesson-adds-to-the-reasoning-chain">What This Lesson Adds to the Reasoning Chain</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -174,11 +228,270 @@ ul.task-list li input[type="checkbox"] {
 
 
 <div class="cdi-message">
-<p>ID: GWAS-L04 Type: Lesson Audience: Public Theme: Models, assumptions, covariate adjustment</p>
+<ul>
+<li><strong>ID:</strong> GWAS-L04</li>
+<li><strong>Type:</strong> Statistical Foundations</li>
+<li><strong>Audience:</strong> Public</li>
+<li><strong>Theme:</strong> Per-SNP testing, adjustment, and interpretation boundaries</li>
+</ul>
 </div>
-<p>Content coming soon.</p>
+<section id="what-association-testing-actually-does" class="level2">
+<h2 class="anchored" data-anchor-id="what-association-testing-actually-does">What Association Testing Actually Does</h2>
+<p>In GWAS, we test whether a genetic variant is associated with a trait.</p>
+<p>For a quantitative trait, the simplest model is a linear regression:</p>
+<p>Trait ~ SNP + Covariates</p>
+<p>The SNP is usually coded as 0, 1, 2, representing allele dosage.</p>
+<p>The output provides:</p>
+<ul>
+<li>an effect size (beta)</li>
+<li>a standard error</li>
+<li>a p-value</li>
+</ul>
+<p>A small p-value indicates evidence of association, not proof of causality.</p>
+<hr>
+</section>
+<section id="load-analysis-inputs" class="level2">
+<h2 class="anchored" data-anchor-id="load-analysis-inputs">Load Analysis Inputs</h2>
+<p>In this lesson, we combine:</p>
+<ul>
+<li>phenotype and covariates (from Lesson 2)</li>
+<li>a genotype matrix (from the demo data)</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"scripts/R/cdi-plot-theme.R"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>pheno <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/demo-phenotype.csv"</span>, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>covar <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/demo-covariates.csv"</span>, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">merge</span>(pheno, covar, <span class="at">by =</span> <span class="st">"sample_id"</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>geno <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/demo-genotypes.csv"</span>, <span class="at">row.names =</span> <span class="dv">1</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 200   6</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(geno)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  200 2000</code></pre>
+</div>
+</div>
+<hr>
+</section>
+<section id="inspect-the-analysis-table" class="level2">
+<h2 class="anchored" data-anchor-id="inspect-the-analysis-table">Inspect the Analysis Table</h2>
+<p>Before fitting any models, confirm the analysis table contains what you think it contains.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   200 obs. of  6 variables:
+ $ sample_id: chr  "sample-001" "sample-002" "sample-003" "sample-004" ...
+ $ trait    : num  1.48 2.49 1.68 1.96 2.23 ...
+ $ age      : int  38 42 64 46 47 66 51 30 37 40 ...
+ $ sex      : chr  "F" "F" "F" "F" ...
+ $ PC1      : num  -0.715 -0.753 -0.939 -1.053 -0.437 ...
+ $ PC2      : num  -0.9107 -1.2466 0.2583 -0.0307 -1.4696 ...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   sample_id    trait age sex        PC1         PC2
+1 sample-001 1.484454  38   F -0.7152422 -0.91065959
+2 sample-002 2.485771  42   F -0.7526890 -1.24657225
+3 sample-003 1.676582  64   F -0.9385387  0.25830482
+4 sample-004 1.963092  46   F -1.0525133 -0.03065893
+5 sample-005 2.226643  47   F -0.4371595 -1.46962895
+6 sample-006 2.206656  66   F  0.3311792  0.12258954</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(df<span class="sc">$</span>trait)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-0.3067  1.3695  2.0493  2.1273  2.8598  5.3643 </code></pre>
+</div>
+</div>
+<p>You should see the core fields used throughout this guide:</p>
+<ul>
+<li>sample_id</li>
+<li>trait</li>
+<li>age</li>
+<li>sex</li>
+<li>PC1</li>
+<li>PC2</li>
+</ul>
+<p>If these are missing or mis-typed, association testing may still run, but interpretation becomes unreliable.</p>
+<hr>
+</section>
+<section id="align-samples" class="level2">
+<h2 class="anchored" data-anchor-id="align-samples">Align Samples</h2>
+<p>Genotype data uses row names as sample IDs. We must ensure phenotype rows match genotype rows.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>common_ids <span class="ot">&lt;-</span> <span class="fu">intersect</span>(df<span class="sc">$</span>sample_id, <span class="fu">rownames</span>(geno))</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> df[df<span class="sc">$</span>sample_id <span class="sc">%in%</span> common_ids, ]</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>geno <span class="ot">&lt;-</span> geno[common_ids, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Match order exactly</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> df[<span class="fu">match</span>(common_ids, df<span class="sc">$</span>sample_id), ]</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(df<span class="sc">$</span>sample_id <span class="sc">==</span> <span class="fu">rownames</span>(geno)))</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 200   6</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(geno)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  200 2000</code></pre>
+</div>
+</div>
+<hr>
+</section>
+<section id="minimal-adjustment-model" class="level2">
+<h2 class="anchored" data-anchor-id="minimal-adjustment-model">Minimal Adjustment Model</h2>
+<p>In Lesson 2, we motivated adjustment for age, sex, and principal components.</p>
+<p>In this demo, we use:</p>
+<p>Trait ~ age + sex + PC1 + PC2</p>
+<p>Association testing adds one SNP at a time to this baseline model.</p>
+<hr>
+</section>
+<section id="example-one-snp-test" class="level2">
+<h2 class="anchored" data-anchor-id="example-one-snp-test">Example: One SNP Test</h2>
+<p>To make the process concrete, test a single SNP and interpret the output.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>snp_name <span class="ot">&lt;-</span> <span class="fu">colnames</span>(geno)[<span class="dv">1</span>]</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> geno[, snp_name]</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Mean impute for this SNP (simple demo approach)</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">any</span>(<span class="fu">is.na</span>(x))){</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  x[<span class="fu">is.na</span>(x)] <span class="ot">&lt;-</span> <span class="fu">mean</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(trait <span class="sc">~</span> x <span class="sc">+</span> age <span class="sc">+</span> sex <span class="sc">+</span> PC1 <span class="sc">+</span> PC2, <span class="at">data =</span> df)</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)<span class="sc">$</span>coefficients[<span class="st">"x"</span>, ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Estimate Std. Error    t value   Pr(&gt;|t|) 
+0.29666525 0.15447184 1.92051353 0.05625948 </code></pre>
+</div>
+</div>
+<section id="interpretation" class="level3">
+<h3 class="anchored" data-anchor-id="interpretation">Interpretation</h3>
+<ul>
+<li>The coefficient for x is the estimated trait change per allele.</li>
+<li>The p-value tests whether that coefficient differs from zero.</li>
+</ul>
+<p>This is an association test. It is not yet a biological claim.</p>
+<hr>
+</section>
+</section>
+<section id="scaling-up-per-snp-regression" class="level2">
+<h2 class="anchored" data-anchor-id="scaling-up-per-snp-regression">Scaling Up: Per-SNP Regression</h2>
+<p>GWAS repeats the same model across many SNPs.</p>
+<p>We will create a small function that returns:</p>
+<ul>
+<li>beta</li>
+<li>standard error</li>
+<li>p-value</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>test_snp_lm <span class="ot">&lt;-</span> <span class="cf">function</span>(x, df){</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">any</span>(<span class="fu">is.na</span>(x))){</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    x[<span class="fu">is.na</span>(x)] <span class="ot">&lt;-</span> <span class="fu">mean</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(trait <span class="sc">~</span> x <span class="sc">+</span> age <span class="sc">+</span> sex <span class="sc">+</span> PC1 <span class="sc">+</span> PC2, <span class="at">data =</span> df)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  co <span class="ot">&lt;-</span> <span class="fu">summary</span>(fit)<span class="sc">$</span>coefficients</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">beta =</span> <span class="fu">unname</span>(co[<span class="st">"x"</span>, <span class="st">"Estimate"</span>]),</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">se =</span> <span class="fu">unname</span>(co[<span class="st">"x"</span>, <span class="st">"Std. Error"</span>]),</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">p =</span> <span class="fu">unname</span>(co[<span class="st">"x"</span>, <span class="st">"Pr(&gt;|t|)"</span>])</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now apply it across all SNPs.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">t</span>(<span class="fu">apply</span>(geno, <span class="dv">2</span>, test_snp_lm, <span class="at">df =</span> df))</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(res)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>snp <span class="ot">&lt;-</span> <span class="fu">rownames</span>(res)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> res[, <span class="fu">c</span>(<span class="st">"snp"</span>, <span class="st">"beta"</span>, <span class="st">"se"</span>, <span class="st">"p"</span>)]</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    snp        beta        se          p
+rs1 rs1  0.29666525 0.1544718 0.05625948
+rs2 rs2 -0.16324751 0.1546238 0.29238528
+rs3 rs3  0.12014575 0.2072047 0.56269466
+rs4 rs4  0.11951910 0.1291166 0.35576846
+rs5 rs5 -0.09684449 0.1517165 0.52401469
+rs6 rs6  0.05570001 0.1119807 0.61946512</code></pre>
+</div>
+</div>
+<hr>
+</section>
+<section id="multiple-testing" class="level2">
+<h2 class="anchored" data-anchor-id="multiple-testing">Multiple Testing</h2>
+<p>A GWAS typically tests hundreds of thousands to millions of SNPs.</p>
+<p>With so many tests:</p>
+<ul>
+<li>some p-values will be small by chance</li>
+<li>naive thresholds (like 0.05) are not meaningful</li>
+</ul>
+<p>This is why GWAS uses stringent thresholds (often around 5e-8 in real studies).</p>
+<p>In this demo, we focus on concepts rather than strict genome-wide significance.</p>
+<hr>
+</section>
+<section id="effect-size-vs-significance" class="level2">
+<h2 class="anchored" data-anchor-id="effect-size-vs-significance">Effect Size vs Significance</h2>
+<p>A small p-value can occur with:</p>
+<ul>
+<li>a large effect size</li>
+<li>a small standard error</li>
+<li>a large sample size</li>
+</ul>
+<p>A large effect size can be non-significant if sample size is small or variance is large.</p>
+<p>Effect size answers:</p>
+<p>How strong is the association?</p>
+<p>P-value answers:</p>
+<p>How surprising is the association under the null?</p>
+<p>Both must be interpreted together.</p>
+<hr>
+</section>
+<section id="quick-diagnostic-top-hits" class="level2">
+<h2 class="anchored" data-anchor-id="quick-diagnostic-top-hits">Quick Diagnostic: Top Hits</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> res[<span class="fu">order</span>(res<span class="sc">$</span>p), ]</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(res, <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          snp       beta        se            p
+rs153   rs153  0.6862770 0.1030083 2.714428e-10
+rs754   rs754 -0.7736402 0.1873225 5.388030e-05
+rs229   rs229 -0.4507871 0.1184809 1.901932e-04
+rs424   rs424  0.3982625 0.1161028 7.366738e-04
+rs593   rs593  0.3478399 0.1066971 1.315523e-03
+rs1925 rs1925 -0.3657837 0.1129199 1.409698e-03
+rs1529 rs1529  0.3740211 0.1158913 1.466877e-03
+rs900   rs900  0.3483107 0.1094973 1.709060e-03
+rs1063 rs1063  0.3584473 0.1127226 1.715172e-03
+rs156   rs156  0.4618530 0.1510465 2.545306e-03</code></pre>
+</div>
+</div>
+<p>At this stage, a top hit is not yet a biological claim. It is a candidate signal that needs validation and calibration.</p>
+<hr>
+</section>
+<section id="what-this-lesson-adds-to-the-reasoning-chain" class="level2">
+<h2 class="anchored" data-anchor-id="what-this-lesson-adds-to-the-reasoning-chain">What This Lesson Adds to the Reasoning Chain</h2>
+<p>Association testing provides statistical evidence. It does not provide mechanism.</p>
+<p>Before interpreting a hit, we still need to ask:</p>
+<ul>
+<li>Is the signal robust to covariate adjustment?</li>
+<li>Is it driven by structure or outliers?</li>
+<li>Is the effect size plausible?</li>
+<li>Is it likely replicated, or just a chance finding?</li>
+</ul>
+<p>Those checks start in Lesson 5 with visualization and diagnostics.</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -587,8 +900,8 @@ ul.task-list li input[type="checkbox"] {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./05-visualizing-and-validating-signals.html" class="pagination-link" aria-label="Lesson 5: Visualizing and Validating Signals">
-        <span class="nav-page-text"><span class="chapter-title">Lesson 5: Visualizing and Validating Signals</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./05-visualizing-and-validating-signals.html" class="pagination-link" aria-label="Lesson 5: Visualizing and Validating Association Signals">
+        <span class="nav-page-text"><span class="chapter-title">Lesson 5: Visualizing and Validating Association Signals</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

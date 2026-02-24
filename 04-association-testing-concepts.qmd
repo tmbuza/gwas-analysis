@@ -1,11 +1,260 @@
-:::cdi-message
-ID: GWAS-L04
-Type: Lesson
-Audience: Public
-Theme: Models, assumptions, covariate adjustment
-:::
-
 # Lesson 4: Association Testing Concepts
 
-Content coming soon.
+:::cdi-message
+- **ID:** GWAS-L04
+- **Type:** Statistical Foundations
+- **Audience:** Public
+- **Theme:** Per-SNP testing, adjustment, and interpretation boundaries
+:::
 
+## What Association Testing Actually Does
+
+In GWAS, we test whether a genetic variant is associated with a trait.
+
+For a quantitative trait, the simplest model is a linear regression:
+
+Trait ~ SNP + Covariates
+
+The SNP is usually coded as 0, 1, 2, representing allele dosage.
+
+The output provides:
+
+- an effect size (beta)
+- a standard error
+- a p-value
+
+A small p-value indicates evidence of association, not proof of causality.
+
+---
+
+## Load Analysis Inputs
+
+In this lesson, we combine:
+
+- phenotype and covariates (from Lesson 2)
+- a genotype matrix (from the demo data)
+
+```{r setup-and-load-inputs}
+#| message: false
+#| warning: false
+
+source("scripts/R/cdi-plot-theme.R")
+library(ggplot2)
+
+pheno <- read.csv("data/demo-phenotype.csv", stringsAsFactors = FALSE)
+covar <- read.csv("data/demo-covariates.csv", stringsAsFactors = FALSE)
+
+df <- merge(pheno, covar, by = "sample_id")
+
+geno <- read.csv("data/demo-genotypes.csv", row.names = 1)
+
+dim(df)
+dim(geno)
+```
+
+---
+
+## Inspect the Analysis Table
+
+Before fitting any models, confirm the analysis table contains what you think it contains.
+
+```{r inspect-analysis-table}
+#| message: false
+#| warning: false
+
+str(df)
+head(df)
+summary(df$trait)
+```
+
+You should see the core fields used throughout this guide:
+
+- sample_id
+- trait
+- age
+- sex
+- PC1
+- PC2
+
+If these are missing or mis-typed, association testing may still run, but interpretation becomes unreliable.
+
+---
+
+## Align Samples
+
+Genotype data uses row names as sample IDs.
+We must ensure phenotype rows match genotype rows.
+
+```{r align-samples}
+#| message: false
+#| warning: false
+
+common_ids <- intersect(df$sample_id, rownames(geno))
+
+df <- df[df$sample_id %in% common_ids, ]
+geno <- geno[common_ids, , drop = FALSE]
+
+# Match order exactly
+df <- df[match(common_ids, df$sample_id), ]
+
+stopifnot(all(df$sample_id == rownames(geno)))
+
+dim(df)
+dim(geno)
+```
+
+---
+
+## Minimal Adjustment Model
+
+In Lesson 2, we motivated adjustment for age, sex, and principal components.
+
+In this demo, we use:
+
+Trait ~ age + sex + PC1 + PC2
+
+Association testing adds one SNP at a time to this baseline model.
+
+---
+
+## Example: One SNP Test
+
+To make the process concrete, test a single SNP and interpret the output.
+
+```{r one-snp-test}
+#| message: false
+#| warning: false
+
+snp_name <- colnames(geno)[1]
+x <- geno[, snp_name]
+
+# Mean impute for this SNP (simple demo approach)
+if (any(is.na(x))){
+  x[is.na(x)] <- mean(x, na.rm = TRUE)
+}
+
+fit <- lm(trait ~ x + age + sex + PC1 + PC2, data = df)
+summary(fit)$coefficients["x", ]
+```
+
+### Interpretation
+
+- The coefficient for x is the estimated trait change per allele.
+- The p-value tests whether that coefficient differs from zero.
+
+This is an association test.
+It is not yet a biological claim.
+
+---
+
+## Scaling Up: Per-SNP Regression
+
+GWAS repeats the same model across many SNPs.
+
+We will create a small function that returns:
+
+- beta
+- standard error
+- p-value
+
+```{r snp-test-function}
+#| message: false
+#| warning: false
+
+test_snp_lm <- function(x, df){
+  if (any(is.na(x))){
+    x[is.na(x)] <- mean(x, na.rm = TRUE)
+  }
+
+  fit <- lm(trait ~ x + age + sex + PC1 + PC2, data = df)
+  co <- summary(fit)$coefficients
+
+  c(
+    beta = unname(co["x", "Estimate"]),
+    se = unname(co["x", "Std. Error"]),
+    p = unname(co["x", "Pr(>|t|)"])
+  )
+}
+```
+
+Now apply it across all SNPs.
+
+```{r run-per-snp-gwas}
+#| message: false
+#| warning: false
+
+res <- t(apply(geno, 2, test_snp_lm, df = df))
+res <- as.data.frame(res)
+res$snp <- rownames(res)
+
+res <- res[, c("snp", "beta", "se", "p")]
+head(res)
+```
+
+---
+
+## Multiple Testing
+
+A GWAS typically tests hundreds of thousands to millions of SNPs.
+
+With so many tests:
+
+- some p-values will be small by chance
+- naive thresholds (like 0.05) are not meaningful
+
+This is why GWAS uses stringent thresholds (often around 5e-8 in real studies).
+
+In this demo, we focus on concepts rather than strict genome-wide significance.
+
+---
+
+## Effect Size vs Significance
+
+A small p-value can occur with:
+
+- a large effect size
+- a small standard error
+- a large sample size
+
+A large effect size can be non-significant if sample size is small or variance is large.
+
+Effect size answers:
+
+How strong is the association?
+
+P-value answers:
+
+How surprising is the association under the null?
+
+Both must be interpreted together.
+
+---
+
+## Quick Diagnostic: Top Hits
+
+```{r top-hits}
+#| message: false
+#| warning: false
+
+res <- res[order(res$p), ]
+head(res, 10)
+```
+
+At this stage, a top hit is not yet a biological claim.
+It is a candidate signal that needs validation and calibration.
+
+---
+
+## What This Lesson Adds to the Reasoning Chain
+
+Association testing provides statistical evidence.
+It does not provide mechanism.
+
+Before interpreting a hit, we still need to ask:
+
+- Is the signal robust to covariate adjustment?
+- Is it driven by structure or outliers?
+- Is the effect size plausible?
+- Is it likely replicated, or just a chance finding?
+
+Those checks start in Lesson 5 with visualization and diagnostics.
