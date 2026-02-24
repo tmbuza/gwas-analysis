@@ -20,6 +20,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -148,8 +183,24 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#why-genotype-qc-matters" id="toc-why-genotype-qc-matters" class="nav-link active" data-scroll-target="#why-genotype-qc-matters">Why Genotype QC Matters</a></li>
+  <li><a href="#load-genotype-matrix" id="toc-load-genotype-matrix" class="nav-link" data-scroll-target="#load-genotype-matrix">Load Genotype Matrix</a></li>
+  <li><a href="#missingness-per-snp" id="toc-missingness-per-snp" class="nav-link" data-scroll-target="#missingness-per-snp">Missingness Per SNP</a></li>
+  <li><a href="#minor-allele-frequency-maf" id="toc-minor-allele-frequency-maf" class="nav-link" data-scroll-target="#minor-allele-frequency-maf">Minor Allele Frequency (MAF)</a></li>
+  <li><a href="#sample-level-missingness" id="toc-sample-level-missingness" class="nav-link" data-scroll-target="#sample-level-missingness">Sample-Level Missingness</a></li>
+  <li><a href="#principal-component-analysis-pca" id="toc-principal-component-analysis-pca" class="nav-link" data-scroll-target="#principal-component-analysis-pca">Principal Component Analysis (PCA)</a></li>
+  <li><a href="#visualize-pc1-vs-pc2" id="toc-visualize-pc1-vs-pc2" class="nav-link" data-scroll-target="#visualize-pc1-vs-pc2">Visualize PC1 vs PC2</a>
+  <ul class="collapse">
+  <li><a href="#interpretation" id="toc-interpretation" class="nav-link" data-scroll-target="#interpretation">Interpretation</a></li>
+  </ul></li>
+  <li><a href="#what-qc-achieved" id="toc-what-qc-achieved" class="nav-link" data-scroll-target="#what-qc-achieved">What QC Achieved</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -174,11 +225,242 @@ ul.task-list li input[type="checkbox"] {
 
 
 <div class="cdi-message">
-<p>ID: GWAS-L03 Type: Lesson Audience: Public Theme: QC, ancestry, relatedness, stratification</p>
+<ul>
+<li><strong>ID:</strong> GWAS-L03</li>
+<li><strong>Type:</strong> Conceptual + Implementation</li>
+<li><strong>Audience:</strong> Public</li>
+<li><strong>Theme:</strong> Variant filtering, sample QC, and structure diagnostics</li>
+</ul>
 </div>
-<p>Content coming soon.</p>
+<section id="why-genotype-qc-matters" class="level2">
+<h2 class="anchored" data-anchor-id="why-genotype-qc-matters">Why Genotype QC Matters</h2>
+<p>Association testing assumes:</p>
+<ul>
+<li>Genotypes are measured reliably</li>
+<li>Variants are polymorphic</li>
+<li>Missingness is not systematic</li>
+<li>Population structure is properly characterized</li>
+</ul>
+<p>If these assumptions fail, false positives can arise before modeling even begins.</p>
+<p>Genotype QC is not a preprocessing formality. It is statistical risk control.</p>
+<hr>
+</section>
+<section id="load-genotype-matrix" class="level2">
+<h2 class="anchored" data-anchor-id="load-genotype-matrix">Load Genotype Matrix</h2>
+<p>For demonstration, we use a simulated genotype matrix where:</p>
+<ul>
+<li>Rows = samples</li>
+<li>Columns = SNPs</li>
+<li>Values = 0, 1, 2 (allele dosage)</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>geno <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/demo-genotypes.csv"</span>, <span class="at">row.names =</span> <span class="dv">1</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(geno)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  200 2000</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>geno[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           rs1 rs2 rs3 rs4 rs5 rs6
+sample-001   0   0   0   0   1   2
+sample-002   0   0   0   1   0   1
+sample-003   0   0   0   1   0   1
+sample-004   1   0   0   0   0   1
+sample-005   0   0   0   0   0   0</code></pre>
+</div>
+</div>
+<hr>
+</section>
+<section id="missingness-per-snp" class="level2">
+<h2 class="anchored" data-anchor-id="missingness-per-snp">Missingness Per SNP</h2>
+<p>Variants with excessive missing data can bias association tests.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>snp_missing <span class="ot">&lt;-</span> <span class="fu">colMeans</span>(<span class="fu">is.na</span>(geno))</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(snp_missing)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.0000  0.0250  0.0350  0.0379  0.0500  0.1350 </code></pre>
+</div>
+</div>
+<p>A typical threshold in practice might be 2–5% missingness. For this demo, we filter SNPs with &gt;5% missingness.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>geno_filtered <span class="ot">&lt;-</span> geno[, snp_missing <span class="sc">&lt;=</span> <span class="fl">0.05</span>]</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(geno_filtered)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  200 1578</code></pre>
+</div>
+</div>
+<hr>
+</section>
+<section id="minor-allele-frequency-maf" class="level2">
+<h2 class="anchored" data-anchor-id="minor-allele-frequency-maf">Minor Allele Frequency (MAF)</h2>
+<p>Very rare variants can:</p>
+<ul>
+<li>Inflate variance estimates</li>
+<li>Produce unstable effect sizes</li>
+<li>Generate extreme p-values due to sparse counts</li>
+</ul>
+<p>Compute allele frequency and MAF.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>allele_freq <span class="ot">&lt;-</span> <span class="fu">colMeans</span>(geno_filtered, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">/</span> <span class="dv">2</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>maf <span class="ot">&lt;-</span> <span class="fu">pmin</span>(allele_freq, <span class="dv">1</span> <span class="sc">-</span> allele_freq)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(maf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.0285  0.1601  0.2784  0.2764  0.3952  0.5000 </code></pre>
+</div>
+</div>
+<p>Filter SNPs with MAF &lt; 0.05.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>geno_filtered <span class="ot">&lt;-</span> geno_filtered[, maf <span class="sc">&gt;=</span> <span class="fl">0.05</span>]</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(geno_filtered)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  200 1559</code></pre>
+</div>
+</div>
+<p>Interpretation:</p>
+<p>Removing very rare variants increases model stability in small datasets. In large biobank-scale GWAS, rare variant strategies differ and require specialized modeling.</p>
+<hr>
+</section>
+<section id="sample-level-missingness" class="level2">
+<h2 class="anchored" data-anchor-id="sample-level-missingness">Sample-Level Missingness</h2>
+<p>Samples with excessive missing genotypes can distort association signals.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>sample_missing <span class="ot">&lt;-</span> <span class="fu">rowMeans</span>(<span class="fu">is.na</span>(geno_filtered))</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(sample_missing)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+0.003207 0.008980 0.023412 0.029548 0.042335 0.124439 </code></pre>
+</div>
+</div>
+<p>Filter samples with &gt;5% missingness.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>keep_samples <span class="ot">&lt;-</span> sample_missing <span class="sc">&lt;=</span> <span class="fl">0.05</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>geno_filtered <span class="ot">&lt;-</span> geno_filtered[keep_samples, ]</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(geno_filtered)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  162 1559</code></pre>
+</div>
+</div>
+<hr>
+</section>
+<section id="principal-component-analysis-pca" class="level2">
+<h2 class="anchored" data-anchor-id="principal-component-analysis-pca">Principal Component Analysis (PCA)</h2>
+<p>Population structure is estimated from genotype variation.</p>
+<p>Before PCA, we use simple mean imputation to avoid dropping large parts of the genotype matrix due to missingness. This is a pragmatic step for structure estimation, not a claim about true genotypes.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>geno_mat <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(geno_filtered)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (j <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">ncol</span>(geno_mat))){</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  idx <span class="ot">&lt;-</span> <span class="fu">is.na</span>(geno_mat[, j])</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">any</span>(idx)){</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    mu <span class="ot">&lt;-</span> <span class="fu">mean</span>(geno_mat[, j], <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    geno_mat[idx, j] <span class="ot">&lt;-</span> mu</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="sc">!</span><span class="fu">anyNA</span>(geno_mat))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>For teaching stability and speed, we run PCA on a subset of SNPs.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>m_use <span class="ot">&lt;-</span> <span class="fu">min</span>(<span class="dv">1000</span>, <span class="fu">ncol</span>(geno_mat))</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>keep_snps <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">seq_len</span>(<span class="fu">ncol</span>(geno_mat)), <span class="at">size =</span> m_use)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>geno_mat_pca <span class="ot">&lt;-</span> geno_mat[, keep_snps, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(geno_mat_pca)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  162 1000</code></pre>
+</div>
+</div>
+<p>Scaling can fail if any SNP has zero variance (all values identical). We drop such SNPs before PCA.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>sds <span class="ot">&lt;-</span> <span class="fu">apply</span>(geno_mat_pca, <span class="dv">2</span>, stats<span class="sc">::</span>sd)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>keep_var <span class="ot">&lt;-</span> <span class="fu">is.finite</span>(sds) <span class="sc">&amp;</span> sds <span class="sc">&gt;</span> <span class="dv">0</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>geno_mat_pca <span class="ot">&lt;-</span> geno_mat_pca[, keep_var, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(geno_mat_pca)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  162 1000</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>geno_scaled <span class="ot">&lt;-</span> <span class="fu">scale</span>(geno_mat_pca)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="sc">!</span><span class="fu">anyNA</span>(geno_scaled))</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(<span class="fu">is.finite</span>(geno_scaled)))</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>pca <span class="ot">&lt;-</span> <span class="fu">prcomp</span>(geno_scaled, <span class="at">center =</span> <span class="cn">FALSE</span>, <span class="at">scale. =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(pca)<span class="sc">$</span>importance[<span class="dv">2</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    PC1     PC2     PC3     PC4     PC5 
+0.01193 0.01147 0.01133 0.01127 0.01114 </code></pre>
+</div>
+</div>
+<hr>
+</section>
+<section id="visualize-pc1-vs-pc2" class="level2">
+<h2 class="anchored" data-anchor-id="visualize-pc1-vs-pc2">Visualize PC1 vs PC2</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"scripts/R/cdi-plot-theme.R"</span>)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>pca_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">PC1 =</span> pca<span class="sc">$</span>x[, <span class="dv">1</span>],</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">PC2 =</span> pca<span class="sc">$</span>x[, <span class="dv">2</span>]</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>pal <span class="ot">&lt;-</span> <span class="fu">cdi_palette</span>()</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(pca_df, ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x =</span> PC1, <span class="at">y =</span> PC2)) <span class="sc">+</span></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">geom_point</span>(</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> pal<span class="sc">$</span>teal,</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.85</span>,</span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="fl">2.4</span></span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">labs</span>(</span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Population structure (PCA)"</span>,</span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Principal components capture ancestry-related variation"</span>,</span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"PC1"</span>,</span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"PC2"</span></span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cdi_theme</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="03-genotype-qc-and-population-structure_files/figure-html/plot-pca-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="interpretation" class="level3">
+<h3 class="anchored" data-anchor-id="interpretation">Interpretation</h3>
+<p>Principal components summarize correlated genotype variation.</p>
+<p>Clusters or gradients suggest:</p>
+<ul>
+<li>Ancestry differences</li>
+<li>Batch effects</li>
+<li>Subpopulation structure</li>
+</ul>
+<p>Ignoring population structure can produce systematic association inflation.</p>
+<hr>
+</section>
+</section>
+<section id="what-qc-achieved" class="level2">
+<h2 class="anchored" data-anchor-id="what-qc-achieved">What QC Achieved</h2>
+<p>After QC, we have:</p>
+<ul>
+<li>Removed poorly genotyped variants</li>
+<li>Excluded unstable rare variants</li>
+<li>Filtered low-quality samples</li>
+<li>Estimated ancestry structure</li>
+</ul>
+<p>Association testing now operates on a more stable genotype matrix.</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

@@ -1,11 +1,228 @@
-:::cdi-message
-ID: GWAS-L02
-Type: Lesson
-Audience: Public
-Theme: Phenotype definition, covariates, and sampling
-:::
-
 # Lesson 2: Study Design and Phenotypes
 
-Content coming soon.
+:::cdi-message
+- **ID:** GWAS-L02
+- **Type:** Conceptual + Implementation
+- **Audience:** Public
+- **Theme:** Trait definition, covariates, and study structure
+:::
 
+## What This Lesson Does
+
+Before quality control and association testing, a GWAS must be clear about three things:
+
+1. What is the phenotype (trait) and how is it measured?
+2. What is the study design and sampling logic?
+3. Which covariates must be accounted for to avoid misleading associations?
+
+A GWAS can be technically correct and still be scientifically weak if the phenotype is ambiguous or the design is unclear.
+
+---
+
+## Core Principle
+
+Genetic associations are interpreted relative to the phenotype definition.
+
+If the phenotype is noisy, misclassified, or inconsistently measured, the analysis may produce:
+
+- Reduced power (true signals are harder to detect)
+- False positives (associations driven by measurement artifacts)
+- Confusing effect sizes (not comparable across samples)
+
+The goal is to define the trait in a way that is measurable, consistent, and interpretable.
+
+---
+
+## Study Design Patterns in GWAS
+
+Common GWAS study designs include:
+
+### Quantitative trait GWAS
+- Continuous outcomes (for example BMI, blood pressure, cholesterol)
+- Usually modeled with a linear model
+- Interpretation is in units of trait change per allele
+
+### Case-control GWAS
+- Binary outcomes (case vs control)
+- Usually modeled with logistic regression
+- Interpretation is odds ratio per allele
+
+This free track uses a quantitative trait so the modeling remains transparent.
+
+---
+
+## Load the Demo Data
+
+```{r load-phenotype-and-covariates}
+#| message: false
+#| warning: false
+
+pheno <- read.csv("data/demo-phenotype.csv", stringsAsFactors = FALSE)
+covar <- read.csv("data/demo-covariates.csv", stringsAsFactors = FALSE)
+
+dim(pheno)
+dim(covar)
+head(pheno)
+head(covar)
+```
+
+---
+
+## Plot Setup
+
+```{r setup-plots}
+#| message: false
+#| warning: false
+
+source("scripts/R/cdi-plot-theme.R")
+library(ggplot2)
+```
+
+---
+
+## Ensure Samples Match
+
+```{r merge-analysis-table}
+#| message: false
+#| warning: false
+
+stopifnot(all(pheno$sample_id %in% covar$sample_id))
+stopifnot(all(covar$sample_id %in% pheno$sample_id))
+
+df <- merge(pheno, covar, by = "sample_id")
+
+dim(df)
+head(df)
+```
+
+If sample IDs do not match, association testing can silently become incorrect.
+
+---
+
+## Phenotype Sanity Checks
+
+```{r summarize-trait}
+#| message: false
+#| warning: false
+
+summary(df$trait)
+sum(is.na(df$trait))
+```
+
+```{r plot-trait-distribution}
+#| message: false
+#| warning: false
+
+ggplot(df, ggplot2::aes(x = trait)) +
+  cdi_geom_histogram(bins = 30, colored = TRUE) +
+  cdi_scale_histogram_fill() +
+  ggplot2::labs(
+    title = "Trait distribution (demo data)",
+    subtitle = "Sanity check before modeling",
+    x = "Trait value",
+    y = "Count"
+  ) +
+  cdi_theme()
+```
+
+### Interpretation
+
+The trait appears approximately unimodal with moderate right skew.  
+There are no extreme outliers that would dominate a linear model.
+
+At this stage, the question is not whether the distribution is perfectly normal.  
+The question is whether the trait scale is stable enough to support:
+
+- linear modeling assumptions  
+- interpretable effect sizes  
+- comparability across individuals  
+
+Minor skew does not invalidate GWAS.  
+Severe skew or extreme outliers would require transformation or sensitivity checks.
+
+---
+
+## Principal Components and Structure
+
+```{r plot-trait-vs-pc1}
+#| message: false
+#| warning: false
+
+pal <- cdi_palette()
+
+ggplot(df, ggplot2::aes(x = PC1, y = trait)) +
+  ggplot2::geom_point(alpha = 0.85, color = pal$teal_light) +
+  ggplot2::geom_smooth(method = "lm", se = FALSE, color = pal$highlight, linewidth = 0.9) +
+  ggplot2::labs(
+    title = "Trait vs PC1",
+    subtitle = "If this trend is strong, unadjusted GWAS will inflate",
+    x = "PC1",
+    y = "Trait"
+  ) +
+  cdi_theme()
+```
+
+The visible positive association between PC1 and the trait suggests that population structure contributes to trait variation.
+
+If SNP allele frequencies also vary along PC1, then unadjusted association tests will partially capture ancestry rather than biology.
+
+This produces:
+
+- inflated test statistics  
+- excess small p-values  
+- false positive associations  
+
+Adjusting for principal components is part of study design, not a cosmetic correction.
+
+---
+
+```{r plot-trait-vs-pc2}
+#| message: false
+#| warning: false
+
+pal <- cdi_palette()
+
+ggplot(df, ggplot2::aes(x = PC2, y = trait)) +
+  ggplot2::geom_point(alpha = 0.85, color = pal$teal_light) +
+  ggplot2::geom_smooth(method = "lm", se = FALSE, color = pal$highlight, linewidth = 0.9) +
+  ggplot2::labs(
+    title = "Trait vs PC2",
+    subtitle = "Structure-related covariation should be accounted for",
+    x = "PC2",
+    y = "Trait"
+  ) +
+  cdi_theme()
+```
+
+The association with PC2 appears weaker but still non-zero.
+
+Even modest correlations with principal components can meaningfully affect genome-wide tests, because millions of variants are evaluated. Small structural biases can accumulate into large-scale inflation.
+
+---
+
+## Quantifying Structure-Trait Correlation
+
+```{r quantify-structure-correlation}
+#| message: false
+#| warning: false
+
+cor_pc1 <- cor(df$trait, df$PC1)
+cor_pc2 <- cor(df$trait, df$PC2)
+
+cor_pc1
+cor_pc2
+```
+
+Correlation values quantify the visible trend. Even modest correlations can generate measurable inflation in GWAS if not adjusted.
+
+---
+
+## What This Means for the Rest of the Guide
+
+From this point forward:
+
+- All association models will adjust for age, sex, PC1, and PC2.  
+- Any signal that disappears after adjustment will be interpreted cautiously.  
+- We will distinguish between ancestry-driven signal and locus-specific signal.  
+
+This discipline prevents us from confusing structure with biology.

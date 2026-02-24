@@ -1,11 +1,254 @@
-:::cdi-message
-ID: GWAS-L03
-Type: Lesson
-Audience: Public
-Theme: QC, ancestry, relatedness, stratification
-:::
-
 # Lesson 3: Genotype QC and Population Structure
 
-Content coming soon.
+:::cdi-message
+- **ID:** GWAS-L03
+- **Type:** Conceptual + Implementation
+- **Audience:** Public
+- **Theme:** Variant filtering, sample QC, and structure diagnostics
+:::
 
+## Why Genotype QC Matters
+
+Association testing assumes:
+
+- Genotypes are measured reliably
+- Variants are polymorphic
+- Missingness is not systematic
+- Population structure is properly characterized
+
+If these assumptions fail, false positives can arise before modeling even begins.
+
+Genotype QC is not a preprocessing formality.
+It is statistical risk control.
+
+---
+
+## Load Genotype Matrix
+
+For demonstration, we use a simulated genotype matrix where:
+
+- Rows = samples
+- Columns = SNPs
+- Values = 0, 1, 2 (allele dosage)
+
+```{r load-genotype-matrix}
+#| message: false
+#| warning: false
+
+geno <- read.csv("data/demo-genotypes.csv", row.names = 1)
+dim(geno)
+geno[1:5, 1:6]
+```
+
+---
+
+## Missingness Per SNP
+
+Variants with excessive missing data can bias association tests.
+
+```{r snp-missingness}
+#| message: false
+#| warning: false
+
+snp_missing <- colMeans(is.na(geno))
+summary(snp_missing)
+```
+
+A typical threshold in practice might be 2–5% missingness.
+For this demo, we filter SNPs with >5% missingness.
+
+```{r filter-snp-missingness}
+#| message: false
+#| warning: false
+
+geno_filtered <- geno[, snp_missing <= 0.05]
+dim(geno_filtered)
+```
+
+---
+
+## Minor Allele Frequency (MAF)
+
+Very rare variants can:
+
+- Inflate variance estimates
+- Produce unstable effect sizes
+- Generate extreme p-values due to sparse counts
+
+Compute allele frequency and MAF.
+
+```{r compute-maf}
+#| message: false
+#| warning: false
+
+allele_freq <- colMeans(geno_filtered, na.rm = TRUE) / 2
+maf <- pmin(allele_freq, 1 - allele_freq)
+
+summary(maf)
+```
+
+Filter SNPs with MAF < 0.05.
+
+```{r filter-maf}
+#| message: false
+#| warning: false
+
+geno_filtered <- geno_filtered[, maf >= 0.05]
+dim(geno_filtered)
+```
+
+Interpretation:
+
+Removing very rare variants increases model stability in small datasets.
+In large biobank-scale GWAS, rare variant strategies differ and require specialized modeling.
+
+---
+
+## Sample-Level Missingness
+
+Samples with excessive missing genotypes can distort association signals.
+
+```{r sample-missingness}
+#| message: false
+#| warning: false
+
+sample_missing <- rowMeans(is.na(geno_filtered))
+summary(sample_missing)
+```
+
+Filter samples with >5% missingness.
+
+```{r filter-sample-missingness}
+#| message: false
+#| warning: false
+
+keep_samples <- sample_missing <= 0.05
+geno_filtered <- geno_filtered[keep_samples, ]
+dim(geno_filtered)
+```
+
+---
+
+## Principal Component Analysis (PCA)
+
+Population structure is estimated from genotype variation.
+
+Before PCA, we use simple mean imputation to avoid dropping large parts of the genotype matrix due to missingness.
+This is a pragmatic step for structure estimation, not a claim about true genotypes.
+
+```{r impute-missing-genotypes}
+#| message: false
+#| warning: false
+
+geno_mat <- as.matrix(geno_filtered)
+
+for (j in seq_len(ncol(geno_mat))){
+  idx <- is.na(geno_mat[, j])
+  if (any(idx)){
+    mu <- mean(geno_mat[, j], na.rm = TRUE)
+    geno_mat[idx, j] <- mu
+  }
+}
+
+stopifnot(!anyNA(geno_mat))
+```
+
+For teaching stability and speed, we run PCA on a subset of SNPs.
+
+```{r thin-snps-for-pca}
+#| message: false
+#| warning: false
+
+set.seed(1)
+m_use <- min(1000, ncol(geno_mat))
+keep_snps <- sample(seq_len(ncol(geno_mat)), size = m_use)
+geno_mat_pca <- geno_mat[, keep_snps, drop = FALSE]
+dim(geno_mat_pca)
+```
+
+Scaling can fail if any SNP has zero variance (all values identical).
+We drop such SNPs before PCA.
+
+```{r drop-zero-variance-snps}
+#| message: false
+#| warning: false
+
+sds <- apply(geno_mat_pca, 2, stats::sd)
+
+keep_var <- is.finite(sds) & sds > 0
+geno_mat_pca <- geno_mat_pca[, keep_var, drop = FALSE]
+
+dim(geno_mat_pca)
+```
+
+```{r run-pca}
+#| message: false
+#| warning: false
+
+geno_scaled <- scale(geno_mat_pca)
+
+stopifnot(!anyNA(geno_scaled))
+stopifnot(all(is.finite(geno_scaled)))
+
+pca <- prcomp(geno_scaled, center = FALSE, scale. = FALSE)
+
+summary(pca)$importance[2, 1:5]
+```
+
+---
+
+## Visualize PC1 vs PC2
+
+```{r plot-pca}
+#| message: false
+#| warning: false
+
+source("scripts/R/cdi-plot-theme.R")
+library(ggplot2)
+
+pca_df <- data.frame(
+  PC1 = pca$x[, 1],
+  PC2 = pca$x[, 2]
+)
+
+pal <- cdi_palette()
+
+ggplot(pca_df, ggplot2::aes(x = PC1, y = PC2)) +
+  ggplot2::geom_point(
+    color = pal$teal,
+    alpha = 0.85,
+    size = 2.4
+  ) +
+  ggplot2::labs(
+    title = "Population structure (PCA)",
+    subtitle = "Principal components capture ancestry-related variation",
+    x = "PC1",
+    y = "PC2"
+  ) +
+  cdi_theme()
+```
+
+### Interpretation
+
+Principal components summarize correlated genotype variation.
+
+Clusters or gradients suggest:
+
+- Ancestry differences
+- Batch effects
+- Subpopulation structure
+
+Ignoring population structure can produce systematic association inflation.
+
+---
+
+## What QC Achieved
+
+After QC, we have:
+
+- Removed poorly genotyped variants
+- Excluded unstable rare variants
+- Filtered low-quality samples
+- Estimated ancestry structure
+
+Association testing now operates on a more stable genotype matrix.

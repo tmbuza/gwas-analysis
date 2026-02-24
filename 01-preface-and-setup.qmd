@@ -1,11 +1,112 @@
-:::cdi-message
-ID: GWAS-L01
-Type: Lesson
-Audience: Public
-Theme: GWAS foundations and reproducible setup
-:::
-
 # Lesson 1: Preface and Setup
 
-Content coming soon.
+::: cdi-message
+-   **ID:** GWAS-L01
+-   **Type:** Gateway
+-   **Audience:** Public
+-   **Theme:** GWAS reasoning chain and reproducible setup
+:::
 
+## Why This Guide Exists
+
+Genome-wide association studies are technically straightforward to run.
+
+Large genotype matrices are analyzed. Millions of p-values are
+generated. Significant hits are reported.
+
+Yet interpretation is rarely straightforward.
+
+Small modeling decisions can inflate signals. Population structure can
+create false positives. Unclear phenotype definitions can distort
+conclusions.
+
+This guide focuses on **reasoning discipline**, not just computation.
+
+------------------------------------------------------------------------
+
+## The GWAS Reasoning Chain
+
+Every GWAS result sits at the end of a structured chain:
+
+**Study Design → Phenotype Definition → Genotype QC → Population
+Structure → Association Testing → Calibrated Biological Claims**
+
+Each layer constrains what can be claimed confidently.
+
+If one layer is weak, downstream conclusions become fragile.
+
+This guide walks through each layer deliberately.
+
+------------------------------------------------------------------------
+
+## What This Free Track Covers
+
+This free track covers:
+
+-   Conceptual foundations of GWAS\
+-   Study design and trait clarity\
+-   Genotype quality control\
+-   Population structure and stratification\
+-   Association testing using linear models\
+-   Signal visualization and interpretation discipline
+
+Advanced topics such as fine-mapping, polygenic risk scores, and
+replication strategies are addressed in the premium guide.
+
+------------------------------------------------------------------------
+
+## Simulated Data for Clarity
+
+To keep focus on interpretation rather than file formats, this guide
+uses fully simulated GWAS data in R.
+
+The dataset includes:
+
+-   Genotypes simulated under Hardy-Weinberg equilibrium\
+-   Population structure via principal components\
+-   Controlled missingness\
+-   Known causal variants (for evaluation)
+
+To generate the dataset:
+
+``` bash
+Rscript scripts/R/generate-demo-data.R
+```
+
+All files are written to the `/data` directory.
+
+------------------------------------------------------------------------
+
+## Reproducibility
+
+Rendered output is produced using Quarto.
+
+From the project root:
+
+``` bash
+quarto render
+```
+
+Output is written to `/docs`.
+
+The public version of this guide is deployed at:
+
+https://gwas.complexdatainsights.com
+
+------------------------------------------------------------------------
+
+## Interpretation Discipline
+
+A statistically significant association is not automatically a
+biological insight.
+
+Association does not imply causation. Population structure can mimic
+genetic effects. Multiple testing inflates false positives. Effect size
+matters as much as p-value.
+
+Throughout this guide, results will be interpreted cautiously and
+explicitly.
+
+The goal is not to produce hits.
+
+The goal is to produce defensible claims.

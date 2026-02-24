@@ -20,6 +20,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -148,8 +183,30 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#what-this-lesson-does" id="toc-what-this-lesson-does" class="nav-link active" data-scroll-target="#what-this-lesson-does">What This Lesson Does</a></li>
+  <li><a href="#core-principle" id="toc-core-principle" class="nav-link" data-scroll-target="#core-principle">Core Principle</a></li>
+  <li><a href="#study-design-patterns-in-gwas" id="toc-study-design-patterns-in-gwas" class="nav-link" data-scroll-target="#study-design-patterns-in-gwas">Study Design Patterns in GWAS</a>
+  <ul class="collapse">
+  <li><a href="#quantitative-trait-gwas" id="toc-quantitative-trait-gwas" class="nav-link" data-scroll-target="#quantitative-trait-gwas">Quantitative trait GWAS</a></li>
+  <li><a href="#case-control-gwas" id="toc-case-control-gwas" class="nav-link" data-scroll-target="#case-control-gwas">Case-control GWAS</a></li>
+  </ul></li>
+  <li><a href="#load-the-demo-data" id="toc-load-the-demo-data" class="nav-link" data-scroll-target="#load-the-demo-data">Load the Demo Data</a></li>
+  <li><a href="#plot-setup" id="toc-plot-setup" class="nav-link" data-scroll-target="#plot-setup">Plot Setup</a></li>
+  <li><a href="#ensure-samples-match" id="toc-ensure-samples-match" class="nav-link" data-scroll-target="#ensure-samples-match">Ensure Samples Match</a></li>
+  <li><a href="#phenotype-sanity-checks" id="toc-phenotype-sanity-checks" class="nav-link" data-scroll-target="#phenotype-sanity-checks">Phenotype Sanity Checks</a>
+  <ul class="collapse">
+  <li><a href="#interpretation" id="toc-interpretation" class="nav-link" data-scroll-target="#interpretation">Interpretation</a></li>
+  </ul></li>
+  <li><a href="#principal-components-and-structure" id="toc-principal-components-and-structure" class="nav-link" data-scroll-target="#principal-components-and-structure">Principal Components and Structure</a></li>
+  <li><a href="#quantifying-structure-trait-correlation" id="toc-quantifying-structure-trait-correlation" class="nav-link" data-scroll-target="#quantifying-structure-trait-correlation">Quantifying Structure-Trait Correlation</a></li>
+  <li><a href="#what-this-means-for-the-rest-of-the-guide" id="toc-what-this-means-for-the-rest-of-the-guide" class="nav-link" data-scroll-target="#what-this-means-for-the-rest-of-the-guide">What This Means for the Rest of the Guide</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -174,11 +231,271 @@ ul.task-list li input[type="checkbox"] {
 
 
 <div class="cdi-message">
-<p>ID: GWAS-L02 Type: Lesson Audience: Public Theme: Phenotype definition, covariates, and sampling</p>
+<ul>
+<li><strong>ID:</strong> GWAS-L02</li>
+<li><strong>Type:</strong> Conceptual + Implementation</li>
+<li><strong>Audience:</strong> Public</li>
+<li><strong>Theme:</strong> Trait definition, covariates, and study structure</li>
+</ul>
 </div>
-<p>Content coming soon.</p>
+<section id="what-this-lesson-does" class="level2">
+<h2 class="anchored" data-anchor-id="what-this-lesson-does">What This Lesson Does</h2>
+<p>Before quality control and association testing, a GWAS must be clear about three things:</p>
+<ol type="1">
+<li>What is the phenotype (trait) and how is it measured?</li>
+<li>What is the study design and sampling logic?</li>
+<li>Which covariates must be accounted for to avoid misleading associations?</li>
+</ol>
+<p>A GWAS can be technically correct and still be scientifically weak if the phenotype is ambiguous or the design is unclear.</p>
+<hr>
+</section>
+<section id="core-principle" class="level2">
+<h2 class="anchored" data-anchor-id="core-principle">Core Principle</h2>
+<p>Genetic associations are interpreted relative to the phenotype definition.</p>
+<p>If the phenotype is noisy, misclassified, or inconsistently measured, the analysis may produce:</p>
+<ul>
+<li>Reduced power (true signals are harder to detect)</li>
+<li>False positives (associations driven by measurement artifacts)</li>
+<li>Confusing effect sizes (not comparable across samples)</li>
+</ul>
+<p>The goal is to define the trait in a way that is measurable, consistent, and interpretable.</p>
+<hr>
+</section>
+<section id="study-design-patterns-in-gwas" class="level2">
+<h2 class="anchored" data-anchor-id="study-design-patterns-in-gwas">Study Design Patterns in GWAS</h2>
+<p>Common GWAS study designs include:</p>
+<section id="quantitative-trait-gwas" class="level3">
+<h3 class="anchored" data-anchor-id="quantitative-trait-gwas">Quantitative trait GWAS</h3>
+<ul>
+<li>Continuous outcomes (for example BMI, blood pressure, cholesterol)</li>
+<li>Usually modeled with a linear model</li>
+<li>Interpretation is in units of trait change per allele</li>
+</ul>
+</section>
+<section id="case-control-gwas" class="level3">
+<h3 class="anchored" data-anchor-id="case-control-gwas">Case-control GWAS</h3>
+<ul>
+<li>Binary outcomes (case vs control)</li>
+<li>Usually modeled with logistic regression</li>
+<li>Interpretation is odds ratio per allele</li>
+</ul>
+<p>This free track uses a quantitative trait so the modeling remains transparent.</p>
+<hr>
+</section>
+</section>
+<section id="load-the-demo-data" class="level2">
+<h2 class="anchored" data-anchor-id="load-the-demo-data">Load the Demo Data</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pheno <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/demo-phenotype.csv"</span>, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>covar <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/demo-covariates.csv"</span>, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(pheno)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 200   2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(covar)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 200   5</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pheno)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   sample_id    trait
+1 sample-001 1.484454
+2 sample-002 2.485771
+3 sample-003 1.676582
+4 sample-004 1.963092
+5 sample-005 2.226643
+6 sample-006 2.206656</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(covar)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   sample_id age sex        PC1         PC2
+1 sample-001  38   F -0.7152422 -0.91065959
+2 sample-002  42   F -0.7526890 -1.24657225
+3 sample-003  64   F -0.9385387  0.25830482
+4 sample-004  46   F -1.0525133 -0.03065893
+5 sample-005  47   F -0.4371595 -1.46962895
+6 sample-006  66   F  0.3311792  0.12258954</code></pre>
+</div>
+</div>
+<hr>
+</section>
+<section id="plot-setup" class="level2">
+<h2 class="anchored" data-anchor-id="plot-setup">Plot Setup</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"scripts/R/cdi-plot-theme.R"</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<hr>
+</section>
+<section id="ensure-samples-match" class="level2">
+<h2 class="anchored" data-anchor-id="ensure-samples-match">Ensure Samples Match</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(pheno<span class="sc">$</span>sample_id <span class="sc">%in%</span> covar<span class="sc">$</span>sample_id))</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(covar<span class="sc">$</span>sample_id <span class="sc">%in%</span> pheno<span class="sc">$</span>sample_id))</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">merge</span>(pheno, covar, <span class="at">by =</span> <span class="st">"sample_id"</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 200   6</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   sample_id    trait age sex        PC1         PC2
+1 sample-001 1.484454  38   F -0.7152422 -0.91065959
+2 sample-002 2.485771  42   F -0.7526890 -1.24657225
+3 sample-003 1.676582  64   F -0.9385387  0.25830482
+4 sample-004 1.963092  46   F -1.0525133 -0.03065893
+5 sample-005 2.226643  47   F -0.4371595 -1.46962895
+6 sample-006 2.206656  66   F  0.3311792  0.12258954</code></pre>
+</div>
+</div>
+<p>If sample IDs do not match, association testing can silently become incorrect.</p>
+<hr>
+</section>
+<section id="phenotype-sanity-checks" class="level2">
+<h2 class="anchored" data-anchor-id="phenotype-sanity-checks">Phenotype Sanity Checks</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(df<span class="sc">$</span>trait)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-0.3067  1.3695  2.0493  2.1273  2.8598  5.3643 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is.na</span>(df<span class="sc">$</span>trait))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x =</span> trait)) <span class="sc">+</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cdi_geom_histogram</span>(<span class="at">bins =</span> <span class="dv">30</span>, <span class="at">colored =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cdi_scale_histogram_fill</span>() <span class="sc">+</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">labs</span>(</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Trait distribution (demo data)"</span>,</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Sanity check before modeling"</span>,</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Trait value"</span>,</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Count"</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cdi_theme</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02-study-design-and-phenotypes_files/figure-html/plot-trait-distribution-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="interpretation" class="level3">
+<h3 class="anchored" data-anchor-id="interpretation">Interpretation</h3>
+<p>The trait appears approximately unimodal with moderate right skew.<br>
+There are no extreme outliers that would dominate a linear model.</p>
+<p>At this stage, the question is not whether the distribution is perfectly normal.<br>
+The question is whether the trait scale is stable enough to support:</p>
+<ul>
+<li>linear modeling assumptions<br>
+</li>
+<li>interpretable effect sizes<br>
+</li>
+<li>comparability across individuals</li>
+</ul>
+<p>Minor skew does not invalidate GWAS.<br>
+Severe skew or extreme outliers would require transformation or sensitivity checks.</p>
+<hr>
+</section>
+</section>
+<section id="principal-components-and-structure" class="level2">
+<h2 class="anchored" data-anchor-id="principal-components-and-structure">Principal Components and Structure</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>pal <span class="ot">&lt;-</span> <span class="fu">cdi_palette</span>()</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x =</span> PC1, <span class="at">y =</span> trait)) <span class="sc">+</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.85</span>, <span class="at">color =</span> pal<span class="sc">$</span>teal_light) <span class="sc">+</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> pal<span class="sc">$</span>highlight, <span class="at">linewidth =</span> <span class="fl">0.9</span>) <span class="sc">+</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">labs</span>(</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Trait vs PC1"</span>,</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"If this trend is strong, unadjusted GWAS will inflate"</span>,</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"PC1"</span>,</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Trait"</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cdi_theme</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02-study-design-and-phenotypes_files/figure-html/plot-trait-vs-pc1-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The visible positive association between PC1 and the trait suggests that population structure contributes to trait variation.</p>
+<p>If SNP allele frequencies also vary along PC1, then unadjusted association tests will partially capture ancestry rather than biology.</p>
+<p>This produces:</p>
+<ul>
+<li>inflated test statistics<br>
+</li>
+<li>excess small p-values<br>
+</li>
+<li>false positive associations</li>
+</ul>
+<p>Adjusting for principal components is part of study design, not a cosmetic correction.</p>
+<hr>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>pal <span class="ot">&lt;-</span> <span class="fu">cdi_palette</span>()</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x =</span> PC2, <span class="at">y =</span> trait)) <span class="sc">+</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.85</span>, <span class="at">color =</span> pal<span class="sc">$</span>teal_light) <span class="sc">+</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> pal<span class="sc">$</span>highlight, <span class="at">linewidth =</span> <span class="fl">0.9</span>) <span class="sc">+</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">labs</span>(</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Trait vs PC2"</span>,</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Structure-related covariation should be accounted for"</span>,</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"PC2"</span>,</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Trait"</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cdi_theme</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02-study-design-and-phenotypes_files/figure-html/plot-trait-vs-pc2-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The association with PC2 appears weaker but still non-zero.</p>
+<p>Even modest correlations with principal components can meaningfully affect genome-wide tests, because millions of variants are evaluated. Small structural biases can accumulate into large-scale inflation.</p>
+<hr>
+</section>
+<section id="quantifying-structure-trait-correlation" class="level2">
+<h2 class="anchored" data-anchor-id="quantifying-structure-trait-correlation">Quantifying Structure-Trait Correlation</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>cor_pc1 <span class="ot">&lt;-</span> <span class="fu">cor</span>(df<span class="sc">$</span>trait, df<span class="sc">$</span>PC1)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>cor_pc2 <span class="ot">&lt;-</span> <span class="fu">cor</span>(df<span class="sc">$</span>trait, df<span class="sc">$</span>PC2)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>cor_pc1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.1651406</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>cor_pc2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.144856</code></pre>
+</div>
+</div>
+<p>Correlation values quantify the visible trend. Even modest correlations can generate measurable inflation in GWAS if not adjusted.</p>
+<hr>
+</section>
+<section id="what-this-means-for-the-rest-of-the-guide" class="level2">
+<h2 class="anchored" data-anchor-id="what-this-means-for-the-rest-of-the-guide">What This Means for the Rest of the Guide</h2>
+<p>From this point forward:</p>
+<ul>
+<li>All association models will adjust for age, sex, PC1, and PC2.<br>
+</li>
+<li>Any signal that disappears after adjustment will be interpreted cautiously.<br>
+</li>
+<li>We will distinguish between ancestry-driven signal and locus-specific signal.</li>
+</ul>
+<p>This discipline prevents us from confusing structure with biology.</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

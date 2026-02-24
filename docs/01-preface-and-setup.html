@@ -20,6 +20,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -148,8 +183,19 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#why-this-guide-exists" id="toc-why-this-guide-exists" class="nav-link active" data-scroll-target="#why-this-guide-exists">Why This Guide Exists</a></li>
+  <li><a href="#the-gwas-reasoning-chain" id="toc-the-gwas-reasoning-chain" class="nav-link" data-scroll-target="#the-gwas-reasoning-chain">The GWAS Reasoning Chain</a></li>
+  <li><a href="#what-this-free-track-covers" id="toc-what-this-free-track-covers" class="nav-link" data-scroll-target="#what-this-free-track-covers">What This Free Track Covers</a></li>
+  <li><a href="#simulated-data-for-clarity" id="toc-simulated-data-for-clarity" class="nav-link" data-scroll-target="#simulated-data-for-clarity">Simulated Data for Clarity</a></li>
+  <li><a href="#reproducibility" id="toc-reproducibility" class="nav-link" data-scroll-target="#reproducibility">Reproducibility</a></li>
+  <li><a href="#interpretation-discipline" id="toc-interpretation-discipline" class="nav-link" data-scroll-target="#interpretation-discipline">Interpretation Discipline</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -174,11 +220,88 @@ ul.task-list li input[type="checkbox"] {
 
 
 <div class="cdi-message">
-<p>ID: GWAS-L01 Type: Lesson Audience: Public Theme: GWAS foundations and reproducible setup</p>
+<ul>
+<li><strong>ID:</strong> GWAS-L01</li>
+<li><strong>Type:</strong> Gateway</li>
+<li><strong>Audience:</strong> Public</li>
+<li><strong>Theme:</strong> GWAS reasoning chain and reproducible setup</li>
+</ul>
 </div>
-<p>Content coming soon.</p>
+<section id="why-this-guide-exists" class="level2">
+<h2 class="anchored" data-anchor-id="why-this-guide-exists">Why This Guide Exists</h2>
+<p>Genome-wide association studies are technically straightforward to run.</p>
+<p>Large genotype matrices are analyzed. Millions of p-values are generated. Significant hits are reported.</p>
+<p>Yet interpretation is rarely straightforward.</p>
+<p>Small modeling decisions can inflate signals. Population structure can create false positives. Unclear phenotype definitions can distort conclusions.</p>
+<p>This guide focuses on <strong>reasoning discipline</strong>, not just computation.</p>
+<hr>
+</section>
+<section id="the-gwas-reasoning-chain" class="level2">
+<h2 class="anchored" data-anchor-id="the-gwas-reasoning-chain">The GWAS Reasoning Chain</h2>
+<p>Every GWAS result sits at the end of a structured chain:</p>
+<p><strong>Study Design → Phenotype Definition → Genotype QC → Population Structure → Association Testing → Calibrated Biological Claims</strong></p>
+<p>Each layer constrains what can be claimed confidently.</p>
+<p>If one layer is weak, downstream conclusions become fragile.</p>
+<p>This guide walks through each layer deliberately.</p>
+<hr>
+</section>
+<section id="what-this-free-track-covers" class="level2">
+<h2 class="anchored" data-anchor-id="what-this-free-track-covers">What This Free Track Covers</h2>
+<p>This free track covers:</p>
+<ul>
+<li>Conceptual foundations of GWAS<br>
+</li>
+<li>Study design and trait clarity<br>
+</li>
+<li>Genotype quality control<br>
+</li>
+<li>Population structure and stratification<br>
+</li>
+<li>Association testing using linear models<br>
+</li>
+<li>Signal visualization and interpretation discipline</li>
+</ul>
+<p>Advanced topics such as fine-mapping, polygenic risk scores, and replication strategies are addressed in the premium guide.</p>
+<hr>
+</section>
+<section id="simulated-data-for-clarity" class="level2">
+<h2 class="anchored" data-anchor-id="simulated-data-for-clarity">Simulated Data for Clarity</h2>
+<p>To keep focus on interpretation rather than file formats, this guide uses fully simulated GWAS data in R.</p>
+<p>The dataset includes:</p>
+<ul>
+<li>Genotypes simulated under Hardy-Weinberg equilibrium<br>
+</li>
+<li>Population structure via principal components<br>
+</li>
+<li>Controlled missingness<br>
+</li>
+<li>Known causal variants (for evaluation)</li>
+</ul>
+<p>To generate the dataset:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Rscript</span> scripts/R/generate-demo-data.R</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>All files are written to the <code>/data</code> directory.</p>
+<hr>
+</section>
+<section id="reproducibility" class="level2">
+<h2 class="anchored" data-anchor-id="reproducibility">Reproducibility</h2>
+<p>Rendered output is produced using Quarto.</p>
+<p>From the project root:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">quarto</span> render</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Output is written to <code>/docs</code>.</p>
+<p>The public version of this guide is deployed at:</p>
+<p>https://gwas.complexdatainsights.com</p>
+<hr>
+</section>
+<section id="interpretation-discipline" class="level2">
+<h2 class="anchored" data-anchor-id="interpretation-discipline">Interpretation Discipline</h2>
+<p>A statistically significant association is not automatically a biological insight.</p>
+<p>Association does not imply causation. Population structure can mimic genetic effects. Multiple testing inflates false positives. Effect size matters as much as p-value.</p>
+<p>Throughout this guide, results will be interpreted cautiously and explicitly.</p>
+<p>The goal is not to produce hits.</p>
+<p>The goal is to produce defensible claims.</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
