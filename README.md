@@ -1,25 +1,28 @@
 # GWAS Analysis --- Free Track
 
-This repository contains the **free GWAS guide** from Complex Data
+This repository contains the **GWAS Free Track** from Complex Data
 Insights (CDI).
 
-The focus is not only how to run a genome-wide association study,\
-but how to reason through the results.
+The purpose of this guide is not only to demonstrate how to run a
+genome-wide association study (GWAS), but to teach how to reason through
+results in a disciplined and defensible way.
 
 ------------------------------------------------------------------------
 
-## What This Guide Covers
+## Scope
 
-The free track walks through the structured reasoning chain behind GWAS:
+The free track walks through the structured GWAS reasoning chain:
 
-Study Design → Phenotype Definition → Genotype QC → Population Structure
-→ Association Testing → Calibrated Claims
+Study Design → Phenotype Definition → Genotype Quality Control →
+Population Structure → Association Testing → Calibrated Biological
+Claims
 
-The goal is interpretation discipline, not just computation.
+The emphasis is on interpretation discipline rather than software
+complexity.
 
 ------------------------------------------------------------------------
 
-## Structure
+## Repository Structure
 
     index.qmd                         # Cover (front page only)
     01-preface-and-setup.qmd          # Gateway and reasoning chain
@@ -29,14 +32,23 @@ The goal is interpretation discipline, not just computation.
     05-visualizing-and-validating-signals.qmd
     06-from-association-to-biological-claims.qmd
 
+    assets/
+      css/
+      images/
+
+    scripts/R/
+      cdi-gwas-simulate-data.R
+      generate-demo-data.R
+      cdi-gwas-theme.R
+
 ------------------------------------------------------------------------
 
-## Reproducibility
+## Demo Data (Simulated in R)
 
-This guide uses fully simulated GWAS data in R for clarity and teaching
-purposes.
+This guide uses fully simulated GWAS data for clarity and
+reproducibility.
 
-To generate the demo dataset:
+To generate the dataset:
 
 ``` bash
 Rscript scripts/R/generate-demo-data.R
@@ -44,18 +56,25 @@ Rscript scripts/R/generate-demo-data.R
 
 This creates:
 
--   demo-genotypes.csv\
--   demo-variants.csv\
--   demo-covariates.csv\
--   demo-phenotype.csv\
--   demo-truth.csv\
+-   demo-genotypes.csv
+-   demo-variants.csv
+-   demo-covariates.csv
+-   demo-phenotype.csv
+-   demo-truth.csv
 -   Missingness summaries
 
 All files are written to the `/data` directory.
 
+The dataset includes:
+
+-   Hardy-Weinberg-consistent genotype simulation\
+-   Population structure via principal components\
+-   Controlled missingness\
+-   Known causal variants (for teaching evaluation)
+
 ------------------------------------------------------------------------
 
-## Rendering the Guide
+## Rendering
 
 From the project root:
 
@@ -63,26 +82,42 @@ From the project root:
 quarto render
 ```
 
-Output will be generated in the `/docs` directory.
+Rendered output is written to `/docs`.
 
 ------------------------------------------------------------------------
 
-## Scope of the Free Track
+## Deployment
 
-The free guide covers:
+This repository is rendered and deployed via GitHub Pages.
 
--   Conceptual foundations\
--   QC logic\
--   Population structure reasoning\
--   Basic association modeling\
--   Signal interpretation discipline
+Rendered output from the `/docs` directory is published at:
 
-Advanced topics such as fine-mapping, polygenic risk scores, replication
-studies, and multi-omics integration are reserved for the premium guide.
+https://gwas.complexdatainsights.com
+
+Deployment workflow:
+
+1.  Run `quarto render`
+2.  Commit changes
+3.  Push to `main`
+4.  GitHub Pages serves the `/docs` directory
 
 ------------------------------------------------------------------------
 
-## License
+## What Is Not Covered Here
 
-This repository contains educational material and simulated datasets for
-instructional use.
+Advanced topics such as:
+
+-   Fine mapping\
+-   Polygenic risk scores\
+-   Replication strategy\
+-   Power calculations\
+-   Functional annotation\
+-   Multi-omics integration
+
+are addressed in the premium guide.
+
+------------------------------------------------------------------------
+
+## Purpose
+
+This repository is part of the CDI applied bioinformatics series. It emphasizes structured learning, reproducible workflows, and disciplined interpretation across complex biological data.
