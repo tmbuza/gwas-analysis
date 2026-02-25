@@ -13,7 +13,7 @@ cdi_palette <- function(){
   )
 }
 
-cdi_theme <- function(base_size = 12){
+cdi_theme <- function(base_size = 14){
   pal <- cdi_palette()
 
   ggplot2::theme_light(base_size = base_size) +
