@@ -4,14 +4,28 @@ project:
 
 book:
   title: "GWAS Analysis"
+  subtitle: "From Genotype QC to Interpreting Genetic Associations"
+
   chapters:
     - index.qmd
-    - 01-preface-and-setup.qmd
-    - 02-study-design-and-phenotypes.qmd
-    - 03-genotype-qc-and-population-structure.qmd
-    - 04-association-testing-concepts.qmd
-    - 05-visualizing-and-validating-signals.qmd
-    - 06-from-association-to-biological-claims.qmd
+
+    - part: "Foundations"
+      chapters:
+        - 01-preface-and-setup.qmd
+        - 02-study-design-and-phenotypes.qmd
+
+    - part: "QC and Population Structure"
+      chapters:
+        - 03-genotype-qc-and-population-structure.qmd
+
+    - part: "Association Testing"
+      chapters:
+        - 04-association-testing-concepts.qmd
+
+    - part: "Validation & Signal Interpretation"
+      chapters:
+        - 05-visualizing-and-validating-signals.qmd
+        - 06-from-association-to-biological-claims.qmd
 
 format:
   html:

@@ -5,6 +5,7 @@
 _site/
 .quarto/
 _cache/
+_freeze/
 
 # Ignore HTML everywhere EXCEPT docs/
 *.html
